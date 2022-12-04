@@ -206,13 +206,15 @@ void Matrix::randomize(unsigned int range) {
         }
     }
 }
-void solve_SLDE(Matrix& A, TDynamicVector<int> &b) {
+void solve_SLDE_v1(Matrix& A, TDynamicVector<int> &b) {
     unsigned int n = A.GetSize();
-    Matrix U(n);
+    Matrix U(n); // Матрица, запоминающая действия со строками
     // Сначала U - единичная матрица
     // Она будет присоединена к исходной матрице
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < n; ++i){
         U.val[i][i] = 1;
+    }
+
     // (A | U)
     // U A = H - верхне-треуольная
     //Разрешённые действия (строки a и b):
@@ -221,27 +223,34 @@ void solve_SLDE(Matrix& A, TDynamicVector<int> &b) {
     // a < - > b (поменять местами)
     //cout << "Matrix U on step "<< -1 <<": "<< endl << U ;
 
-    // Проход по столбцам - многомерный алгоритм Евклида
+    // Проход по столбцам - многомерный аналог алгоритма Евклида: сложность O(1)*n = O(n)
+    // Умножение вектора на скаляр - O(n)
+    // Итого n * O(n^2) = O(n^3)
+
     unsigned int num_nonzero = 10; // Число ненулевых элементов в текущем столбце в данный момент
     unsigned int pos_min_nonzero; // Позиция минимального ненулевого элемента
-    for(int k = 0; k<n; k++){
-        auto A_T = A.transpose();
-//        if(k==1)
-//            cout << "It got to the second column!" << endl;
-        TDynamicVector<int> col = A_T[k];// Берём i-й столбец
+    int min_nz; // Минимальный по модулю ненулевой элемент в k-м столбце
 
+    for(int k = 0; k<n; k++){
+        auto A_T = A.transpose(); // Чтобы компу было удобнее ходить в память
+
+//        TDynamicVector<int> col = A_T[k];// Берём k-й столбец
+        TDynamicVector<int> col(n);
+        for(int p=0;p<n;p++){
+            col[p] = A[p][k];
+        }
         // Расширенный алгоритм Евклида над столбцом
 
         while (true){
             num_nonzero = 1;
 
             //int j = 0;
+            // Нули нам явно не нужны. They are the good guys.
             int j = k;
             while (col[j] == 0)
                 j++;
-            int min_nz = col[j];
-//            if(k==1)
-//                cout << "Taken min_nz to be "<< min_nz << endl;
+            // Нули в начале пройдены
+            min_nz = col[j];
             pos_min_nonzero = j;
             for (int i = j+1;i<n;i++) {
                 int t = col[i];
@@ -253,39 +262,127 @@ void solve_SLDE(Matrix& A, TDynamicVector<int> &b) {
                     num_nonzero ++;
                 }
             }
-//            if(k == 1)
-//                cout << "It counted "<< num_nonzero << " nonzero el-s"<<endl;
-            if(num_nonzero == 1) break;
-            // for (int l = 0;l<n;l++)
 
-                for (int l = 0;l<n;l++)
-                    if((l != pos_min_nonzero)&&(col[l]!=0)){
+            if(num_nonzero == 1) break; // Алгоритм Евклида гарантирует, что мы точно придём сюда
 
-                        //double t = col[l]/min_nz;
-                        int multiplier = floor(col[l]/min_nz);
-                        int t = col[l];
-                        col[l] = col[l] % min_nz;
-                        //cout << "A["<<l<<"] was:"<< A[l] << endl;
-                        A[l] = A[l] - A[pos_min_nonzero] * multiplier;
-                        //cout << "A["<<l<<"] became:"<< A[l] << endl;
-                        U[l] = U[l] - U[pos_min_nonzero] * multiplier;
-                        //cout << "col[l] = "<<t<<" | min_nz = "<< min_nz << endl << A;
-                    }
+            // Вертикальный ход
+            for (int l = 0;l<n;l++)
+                if((l != pos_min_nonzero)&&(col[l]!=0)){
 
+                    int multiplier = floor(col[l]/min_nz);
 
+                    col[l] = col[l] % min_nz;
 
-            //cout << "Matrix U on step "<< k<<": "<< endl << U ;
-//            cout << "Col vector :"<<endl <<col << endl;
-//            cout << "Current min nonzero = "<<min_nz << " Pos min nz = "<<pos_min_nonzero<<". Matrix A on step "<< k<<": "<< endl << A ;
+                    A[l] = A[l] - A[pos_min_nonzero] * multiplier;
+
+                    U[l] = U[l] - U[pos_min_nonzero] * multiplier;
+                }
+
         }
 
         // Апосля того, как был зачищен стобец, меняем местами k-ю и min_pos строки
         if(k!=n-1)
             swap(A[k],A[pos_min_nonzero]);
-
     }
 //    cout << "RES: "<<endl << A;
 //    cout << "U is:" << endl << U;
+}
+
+void solve_SLDE_v2(Matrix& A, TDynamicVector<int> &b) {
+    unsigned int n = A.GetSize();
+    Matrix U(n); // Матрица, запоминающая действия со строками
+    Matrix R(n); // Матрица, запоминающая действия со столбцами
+    // Сначала U - единичная матрица
+    // Она будет присоединена к исходной матрице
+    for (int i = 0; i < n; ++i){
+        U.val[i][i] = 1;
+        R.val[i][i] = 1;
+    }
+
+    // (A | U)
+    // U A R = D - почти диагональная
+    //Разрешённые действия (строки/столбцы a и b):
+    // a = a +k *b
+    // a = -a
+    // a < - > b (поменять местами)
+    //cout << "Matrix U on step "<< -1 <<": "<< endl << U ;
+
+    // Проход по столбцам - многомерный аналог алгоритма Евклида: сложность O(1)*n = O(n)
+    // Умножение вектора на скаляр - O(n)
+    // Итого n * O(n^2) = O(n^3)
+
+    unsigned int num_nonzero = 10; // Число ненулевых элементов в текущем столбце в данный момент
+    unsigned int pos_min_nonzero; // Позиция минимального ненулевого элемента
+    int min_nz; // Минимальный по модулю ненулевой элемент в k-м столбце
+
+    for(int k = 0; k<n; k++){
+        auto A_T = A.transpose(); // Чтобы компу было удобнее ходить в память
+
+//        TDynamicVector<int> col = A_T[k];// Берём k-й столбец
+        TDynamicVector<int> col(n);
+        for(int p=0;p<n;p++){
+            col[p] = A[p][k];
+        }
+        // Расширенный алгоритм Евклида над столбцом
+
+        while (true){
+            num_nonzero = 1;
+
+            //int j = 0;
+            // Нули нам явно не нужны. They are the good guys.
+            int j = k;
+            while (col[j] == 0)
+                j++;
+            // Нули в начале пройдены
+            min_nz = col[j];
+            pos_min_nonzero = j;
+            for (int i = j+1;i<n;i++) {
+                int t = col[i];
+                if(t!=0){
+                    if(abs(t) < abs(min_nz)){
+                        min_nz = t;
+                        pos_min_nonzero = i;
+                    }
+                    num_nonzero ++;
+                }
+            }
+
+            if(num_nonzero == 1) break; // Алгоритм Евклида гарантирует, что мы точно придём сюда
+
+            // Вертикальный ход
+            for (int l = 0;l<n;l++)
+                if((l != pos_min_nonzero)&&(col[l]!=0)){
+
+                    int multiplier = floor(col[l]/min_nz);
+
+                    col[l] = col[l] % min_nz;
+
+                    A[l] = A[l] - A[pos_min_nonzero] * multiplier;
+
+                    U[l] = U[l] - U[pos_min_nonzero] * multiplier;
+                }
+
+        }
+
+        // Апосля того, как был зачищен стобец, меняем местами k-ю и min_pos строки
+        if(k!=n-1)
+            swap(A[k],A[pos_min_nonzero]);
+        // А теперь, пользуясь оставшимся ненулевым элементом, уменьшаем элементы строки
+        int el = A[k][k];
+        // Проходим по k-й строке
+        for (int i = k+1; i < n; i++) {
+            int& t = A[k][i];
+            if(abs(el) < abs(t)){
+
+                R[i] =R[i] -  R[k] * floor(t/el);
+                t = t % el;
+            }
+        }
+    }
+//    cout << "RES: "<<endl << A;
+//    cout << "U is:" << endl << U;
+//    auto realR = R.transpose();
+//    cout << "R is" << endl << realR;
 }
 //void solve_SLDE(Matrix& A, TDynamicVector<int> &b) {
 //    unsigned int n = A.GetSize();

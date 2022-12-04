@@ -240,6 +240,6 @@ public:
     //pair<Matrix,Matrix> FHNF(); // Returns pair of U and H, such that det(U) = +-1 and U H = A (H is upper-triangular)
 
 };
-void solve_SLDE(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
-
+void solve_SLDE_v1(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
+void solve_SLDE_v2(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
 #endif //FASTHNF_MATRIX_H
