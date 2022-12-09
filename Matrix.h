@@ -206,6 +206,36 @@ public:
             ostr << v.pMem[i] << ", "; // требуется оператор<< для типа T
         return ostr;
     }
+    // min1,min2
+    pair<int,int> pos_two_min_nonzero_el_s(){
+        int s = 0;
+        while (pMem[s]==0)
+            s++;
+        int m1 = pMem[s];
+        int m1_pos = s;
+        for (int i = 1; i < sz; ++i) {
+            int t = pMem[i];
+            if(t!=0){
+                if(abs(t) < abs(m1) ){
+                    m1 = t;
+                    m1_pos = i;
+                }
+            }
+
+        }
+        int m2 = pMem[0];
+        int m2_pos = 0;
+        for (int i = 1; i < sz; ++i) {
+            int t = pMem[i];
+            if(t!=0){
+                if((t!=m1)&&(t < abs(m2) )){
+                    m2 = t;
+                    m2_pos = i;
+                }
+            }
+        }
+        return {m1_pos,m2_pos};
+    }
 };
 
 
@@ -242,4 +272,5 @@ public:
 };
 void solve_SLDE_v1(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
 void solve_SLDE_v2(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
+void solve_SLDE_v3(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
 #endif //FASTHNF_MATRIX_H

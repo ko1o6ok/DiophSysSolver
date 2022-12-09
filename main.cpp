@@ -5,29 +5,16 @@ using namespace std::chrono;
 
 int main() {
 //    ofstream out;
-//    out.open(R"(C:\C++_proj\FastHNF\out.txt)");
+//    out.open(R"(C:\C++_proj\FastHNF\out1.txt)");
 //    if(out.is_open()){
 //        for (int n = 2; n < 300; ++n) {
 //            Matrix a(n);
-//
 //            a.randomize(40);
-////    a[0][0] = -7;
-////    a[0][1] = -10;
-////    a[0][2] = -2;
-////
-////    a[1][0] = -5;
-////    a[1][1] = 5;
-////    a[1][2] = 0;
-////
-////    a[2][0] = -10;
-////    a[2][1] = -1;
-////    a[2][2] = -6;
-//            //cout << "Start matrix" << endl << a;
 //            TDynamicVector<int> v(n);
 //            v[0] = 1; v[1] = 3;
 //
 //            auto start = high_resolution_clock::now();
-//            solve_SLDE(a,v);
+//            solve_SLDE_v2(a,v);
 //            auto stop = high_resolution_clock::now();
 //            auto duration = duration_cast<milliseconds>(stop - start);
 //
@@ -36,18 +23,48 @@ int main() {
 //            out <<  n <<","<<duration.count()<< endl;
 //        }
 //    }
+    int size = 100;
 
-    Matrix a(70);
+    Matrix a(size);
+    a.randomize(13);
+    // cout << a << endl;
+    auto v = TDynamicVector<int>(20);
 
-    a.randomize(40);
+    auto start1 = high_resolution_clock::now();
+    solve_SLDE_v1(a,v);
+    auto stop1 = high_resolution_clock::now();
+    auto duration1 = duration_cast<milliseconds>(stop1 - start1);
+    cout <<duration1.count()<< " ms"<<endl;
 
-    //cout << "Start matrix" << endl << a;
-    TDynamicVector<int> v(5);
-    v[0] = 1; v[1] = 3;
-    cout  << "Type before start"<<endl;
-    string s;
-    cin >> s;
-    //auto start = high_resolution_clock::now();
-    solve_SLDE(a,v);
+    Matrix a2(size);
+    a2.randomize(35);
+
+    auto start2 = high_resolution_clock::now();
+    solve_SLDE_v2(a2,v);
+    auto stop2 = high_resolution_clock::now();
+    auto duration2 = duration_cast<milliseconds>(stop2 - start2);
+    cout <<duration2.count()<< " ms" <<endl;
+
+    Matrix a3(size);
+    a3.randomize(35);
+    auto start3 = high_resolution_clock::now();
+    solve_SLDE_v3(a3,v);
+    auto stop3 = high_resolution_clock::now();
+    auto duration3 = duration_cast<milliseconds>(stop3 - start3);
+    cout <<duration3.count()<< " ms" <<endl;
+    //TDynamicVector<int> v(20);
+    //solve_SLDE_v2(a,v);
+//    Matrix a(70);
+//
+//    a.randomize(40);
+//
+//    //cout << "Start matrix" << endl << a;
+//    TDynamicVector<int> v(5);
+//    v[0] = 1; v[1] = 3;
+//    cout  << "Type before start"<<endl;
+//    string s;
+//    cin >> s;
+//    //auto start = high_resolution_clock::now();
+//    solve_SLDE(a,v);
     return 0;
 }
