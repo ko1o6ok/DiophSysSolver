@@ -29,6 +29,12 @@ public:
         pMem = new T[sz];
         std::copy(arr, arr + sz, pMem);
     }
+    explicit TDynamicVector(vector<T> v){
+        sz = v.size();
+        pMem = new T[sz]();
+        for (int i = 0; i < sz; ++i)
+            pMem[i] = v[i];
+    }
     TDynamicVector(const TDynamicVector& v) // конструктор копирования
     {
         sz = v.sz;
@@ -149,6 +155,27 @@ public:
             t.pMem[i] += v[i];
         return t;
     }
+    TDynamicVector<int> mult_modulo(int by, int modulus){
+        TDynamicVector<int> a(sz);
+        for (int i = 0; i < sz; ++i) {
+            int t = (pMem[i] * by) % modulus;
+            if(t<0)
+                a[i] = modulus+t;
+            else{
+                a[i] = t;
+            }
+        }
+        return a;
+    }
+    TDynamicVector<int> add_modulo(const TDynamicVector<int>& to, int modulus){
+        TDynamicVector<int> a(sz);
+        for (int i = 0; i < sz; ++i) {
+            int t = (pMem[i] + to.pMem[i]) % modulus;
+            a[i] = t;
+
+        }
+        return a;
+    }
     TDynamicVector operator-(const TDynamicVector& v)
     {
         if(sz != v.sz)
@@ -264,13 +291,22 @@ public:
     multiply_matrix(vector<vector<int> > matrix_A,
                     vector<vector<int> > matrix_B);
     void randomize(unsigned int range); // random int values
-
+    double entropy(); // Энтропия Шеннона для матрицы как текста в конечном алфавите
+    //void blind_entropy_shift(); // Энтропийный сдвиг
     // The function I'm trying to optimize
     // Fast Hermite Normal form of the val matrix
     //pair<Matrix,Matrix> FHNF(); // Returns pair of U and H, such that det(U) = +-1 and U H = A (H is upper-triangular)
 
 };
-void solve_SLDE_v1(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
-void solve_SLDE_v2(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
-void solve_SLDE_v3(Matrix& A, TDynamicVector<int>& b); // Soving A x = b
+int modulo_inverse(int a, int rem); // Обратный по модулю
+int chinese_remainder_theorem(const int* numbers, const int* remainders, int n); // Мин. положит. решение китайской теоремы об остатках
+void solve_SLDE_v1(Matrix& A, TDynamicVector<int>& b); // Solving A x = b
+void solve_SLDE_v2(Matrix& A, TDynamicVector<int>& b); // Solving A x = b
+void solve_SLDE_v3(Matrix& A, TDynamicVector<int>& b); // Solving A x = b [ THE BEST SO FAR ]
+void solve_SLDE_v4(Matrix& A, TDynamicVector<int>& b);
+pair<Matrix,Matrix> solve_SLDE_mod_p(Matrix& A, TDynamicVector<int>& b,int p); // Ax = b mod p
+// В перспективе будут возвращаться две матрицы: U и R. U A R = S, S - смитова нормальная форма
+vector<int> SieveOfEratosthenes(int n); // Возвращает вектор простых чисел, меньших n
+pair<Matrix,Matrix> solve_SLDE_modular_method(Matrix& A, TDynamicVector<int>& b); // Решаем достаточно систем по модулю, затем собираем всё вместе
+int choose_row(Matrix& A, int k); // Выбирает столбец с наименьшим 2-м минимальным элементом
 #endif //FASTHNF_MATRIX_H
