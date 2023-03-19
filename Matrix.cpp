@@ -560,12 +560,13 @@ void solve_SLDE_v3(Matrix& A, TDynamicVector<int> &b) {
         // Апосля того, как был зачищен стобец, меняем местами k-ю и min_pos строки
         if(k!=n-1)
             swap(A[k],A[pos_min_nonzero]);
+        //cout << A << endl;
         // А теперь, пользуясь оставшимся ненулевым элементом, уменьшаем элементы строки
         int el = A[k][k];
         // Проходим по k-й строке
         for (int i = k+1; i < n; i++) {
             int& t = A[k][i];
-            if(abs(el) < abs(t)){
+            if(abs(el) <= abs(t)){
 
                 R[i] =R[i] -  R[k] * floor(t/el);
                 t = t % el;
@@ -574,7 +575,21 @@ void solve_SLDE_v3(Matrix& A, TDynamicVector<int> &b) {
         //cout << A << endl;
         //std::cout << A.entropy() << endl;
     }
+    // Финальная полировка
+    for (int k = 0; k < n; k++) {
+        int el = A[k][k];
+        // Проходим по k-й строке
+        for (int i = k+1; i < n; i++) {
+            int& t = A[k][i];
+            if(t!=0)
+                if(abs(el) <= abs(t)){
 
+                    R[i] =R[i] -  R[k] * floor(t/el);
+                    t = t % el;
+                }
+        }
+    }
+    cout << A << endl;
 }
 int choose_row(Matrix& A, int k){
     int metric; // Максимальное значение второго минимального
@@ -831,7 +846,7 @@ int chinese_remainder_theorem(const int* numbers, const int* remainders, int n)
     // Initialize result
     int result = 0;
 
-    // Apply above formula
+    // Apply the formula above
     for (int i = 0; i < n; i++) {
         int temp = prod / numbers[i];
         result += remainders[i] * modulo_inverse(temp, numbers[i]) * temp;
