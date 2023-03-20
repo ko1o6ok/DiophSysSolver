@@ -15,19 +15,19 @@ protected:
     size_t sz{};
     T* pMem;
 public:
-    explicit TDynamicVector(size_t size = 1) : sz(size)
-    {
-        if (sz <= 0)
-            throw length_error("Vector size should be greater than zero");
-//        if (sz > MAX_VECTOR_SIZE)
-//            throw length_error("Vector size shouldn't be bigger than 10^8");
-        pMem = new T[sz]();// {}; // У типа T д.б. констуктор по умолчанию
-    }
+
+
     TDynamicVector(T* arr, size_t s) : sz(s)
     {
         assert(arr != nullptr && "TDynamicVector ctor requires non-nullptr arg");
         pMem = new T[sz];
         std::copy(arr, arr + sz, pMem);
+    }
+    explicit TDynamicVector(size_t size = 1) : sz(size)
+    {
+        if (sz <= 0)
+            throw length_error("Vector size should be greater than zero");
+        pMem = new T[sz]();// {}; // У типа T д.б. констуктор по умолчанию
     }
     explicit TDynamicVector(vector<T> v){
         sz = v.size();
@@ -267,13 +267,13 @@ public:
 
 
 
-
+template<typename T>
 class Matrix {
 private:
     unsigned int N; // Размер
 
 public:
-    TDynamicVector<TDynamicVector<int>> val;
+    TDynamicVector<TDynamicVector<T>> val;
     unsigned int GetSize() const;
     // Операции выбраны исходя из необходимости
     explicit Matrix(unsigned int n); // n * n zero matrix
@@ -291,22 +291,49 @@ public:
     multiply_matrix(vector<vector<int> > matrix_A,
                     vector<vector<int> > matrix_B);
     void randomize(unsigned int range); // random int values
-    double entropy(); // Энтропия Шеннона для матрицы как текста в конечном алфавите
-    //void blind_entropy_shift(); // Энтропийный сдвиг
-    // The function I'm trying to optimize
-    // Fast Hermite Normal form of the val matrix
-    //pair<Matrix,Matrix> FHNF(); // Returns pair of U and H, such that det(U) = +-1 and U H = A (H is upper-triangular)
 
 };
 int modulo_inverse(int a, int rem); // Обратный по модулю
 int chinese_remainder_theorem(const int* numbers, const int* remainders, int n); // Мин. положит. решение китайской теоремы об остатках
-void solve_SLDE_v1(Matrix& A, TDynamicVector<int>& b); // Solving A x = b
-void solve_SLDE_v2(Matrix& A, TDynamicVector<int>& b); // Solving A x = b
-void solve_SLDE_v3(Matrix& A, TDynamicVector<int>& b); // Solving A x = b [ THE BEST SO FAR ]
-void solve_SLDE_v4(Matrix& A, TDynamicVector<int>& b);
-pair<Matrix,Matrix> solve_SLDE_mod_p(Matrix& A, TDynamicVector<int>& b,int p); // Ax = b mod p
+
+pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A); //  [ THE BEST SO FAR ]
+
+pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<int>& b,int p); // Ax = b mod p
 // В перспективе будут возвращаться две матрицы: U и R. U A R = S, S - смитова нормальная форма
 vector<int> SieveOfEratosthenes(int n); // Возвращает вектор простых чисел, меньших n
-pair<Matrix,Matrix> solve_SLDE_modular_method(Matrix& A, TDynamicVector<int>& b); // Решаем достаточно систем по модулю, затем собираем всё вместе
-int choose_row(Matrix& A, int k); // Выбирает столбец с наименьшим 2-м минимальным элементом
+pair<Matrix<int>,Matrix<int>> solve_SLDE_modular_method(Matrix<int>& A, TDynamicVector<int>& b); // Решаем достаточно систем по модулю, затем собираем всё вместе
+//--------------------------------------------------------------
+// GGH cryptoalgorithm
+//--------------------------------------------------------------
+Matrix<int> gen_public_key(int size,int range){
+    Matrix<int> m(size);
+    m.randomize(range);
+    return m;
+}
+vector<Matrix<int>> gen_private_key(Matrix<int>& public_key){
+    auto L = decompose(public_key);
+    vector<Matrix<int>> RES(3);
+    RES[0] = L.first;
+    RES[1] = public_key;
+    RES[2] = L.second;
+    return RES;
+}
+// e = x A + r
+TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma){
+    auto length = message.size();
+    random_device rd;
+    mt19937_64 gen(rd());
+    uniform_int_distribution<> distr(-sigma,sigma);
+
+    TDynamicVector<int> r(length);
+    for (int i = 0;i<length;i++) {
+        r[i] = distr(gen);
+    }
+
+    return   public_key.transpose() * message + r;
+}
+TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R){
+    // Быстро инвертируем приватный ключ. Это легко сделать, потому что векторы почти ортогональны
+
+}
 #endif //FASTHNF_MATRIX_H

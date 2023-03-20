@@ -18,7 +18,7 @@ int main() {
     TDynamicVector<int> b;
 
     auto start = high_resolution_clock::now();
-    solve_SLDE_v3(A,b);
+    decompose(A);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
     cout <<"v3: "<<duration.count()<< " ms"<< endl;
