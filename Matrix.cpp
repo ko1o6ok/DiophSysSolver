@@ -589,7 +589,9 @@ void solve_SLDE_v3(Matrix& A, TDynamicVector<int> &b) {
                 }
         }
     }
-    cout << A << endl;
+    cout << U <<endl<< "------------------"<<endl;
+    cout << A <<endl<< "------------------"<<endl;
+    cout << R << endl;
 }
 int choose_row(Matrix& A, int k){
     int metric; // Максимальное значение второго минимального

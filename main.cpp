@@ -8,7 +8,7 @@ int main() {
 
     A.randomize(20);
     Matrix C(A);
-    //cout << A;
+    cout << A << "----------------------"<<endl;
     //cout << C;
 //    a[0][0] = 7;
 //    a[1][0] = 7;
@@ -23,11 +23,11 @@ int main() {
     auto duration = duration_cast<milliseconds>(stop - start);
     cout <<"v3: "<<duration.count()<< " ms"<< endl;
 
-    auto start1 = high_resolution_clock::now();
-    solve_SLDE_v4(C,b);
-    auto stop1 = high_resolution_clock::now();
-    auto duration1 = duration_cast<milliseconds>(stop1 - start1);
-    cout <<"v4: "<<duration1.count()<< " ms"<< endl;
+//    auto start1 = high_resolution_clock::now();
+//    solve_SLDE_v4(C,b);
+//    auto stop1 = high_resolution_clock::now();
+//    auto duration1 = duration_cast<milliseconds>(stop1 - start1);
+//    cout <<"v4: "<<duration1.count()<< " ms"<< endl;
 //    ofstream out;
 //    out.open(R"(C:\C++_proj\FastHNF\out2.txt)");
 //    if(out.is_open()){
