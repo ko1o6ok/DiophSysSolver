@@ -12,20 +12,20 @@ Matrix<T>::Matrix(unsigned int n) {
     for (int i = 0; i < N; ++i)
             val[i] = TDynamicVector<T>(N);
 }
-
-template<> Matrix<int>::Matrix(const TDynamicVector<TDynamicVector<int>>& v) {
+template <typename T>
+Matrix<T>::Matrix(const TDynamicVector<TDynamicVector<T>>& v) {
     N = v.size();
     val = v;
 }
-
-template<> TDynamicVector<int>& Matrix<int>::operator[](unsigned int i) {
+template <typename T>
+TDynamicVector<T>& Matrix<T>::operator[](unsigned int i) {
     return val[i];
 }
 
-
-template<> TDynamicVector<int> Matrix<int>::operator*(const TDynamicVector<int>& vec) {
+template <typename T>
+TDynamicVector<T> Matrix<T>::operator*(const TDynamicVector<T>& vec) {
     // Предполагается, что размер vec равен N
-    TDynamicVector<int> res(N);
+    TDynamicVector<T> res(N);
     for (int i = 0; i < N; ++i) {
         res[i] = val[i] * vec;
     }
@@ -44,26 +44,9 @@ template<typename T>
 unsigned int Matrix<T>::GetSize() const {
     return N;
 }
-// Адаптивный алгоритм Штрассена
-// pivot point = 1_000
-template<> Matrix<double> Matrix<double>::operator*(Matrix<double>& m) {
-//    if(N > 1000){
-//        Matrix a(multiply_matrix(val,m.val));
-//        return a;
-//    }
-    Matrix<double> help = m.transpose();
-    Matrix<double> r(N);
-    for (int i = 0; i < N; ++i)
-        for (int j = 0; j < N; ++j)
-            r[i][j] = val[i] * help[j];
-    return r;
-}
-
-
-
-template<> vector<vector<int> >
-Matrix<int>::add_matrix(vector<vector<int> > matrix_A,
-           vector<vector<int> > matrix_B, int split_index,
+template<> vector<vector<double> >
+Matrix<double>::add_matrix(vector<vector<double> > matrix_A,
+           vector<vector<double> > matrix_B, int split_index,
            int multiplier)
 {
     for (auto i = 0; i < split_index; i++)
@@ -74,9 +57,9 @@ Matrix<int>::add_matrix(vector<vector<int> > matrix_A,
     return matrix_A;
 }
 // Strassen's algorithm
-template<> vector<vector<int> >
-Matrix<int>::multiply_matrix(vector<vector<int> > matrix_A,
-                vector<vector<int> > matrix_B)
+template<> vector<vector<double> >
+Matrix<double>::multiply_matrix(vector<vector<double> > matrix_A,
+                vector<vector<double> > matrix_B)
 {
     int col_1 = matrix_A[0].size();
     int row_1 = matrix_A.size();
@@ -90,8 +73,8 @@ Matrix<int>::multiply_matrix(vector<vector<int> > matrix_A,
         return {};
     }
 
-    vector<int> result_matrix_row(col_2, 0);
-    vector<vector<int> > result_matrix(row_1,
+    vector<double> result_matrix_row(col_2, 0);
+    vector<vector<double> > result_matrix(row_1,
                                        result_matrix_row);
 
     if (col_1 == 1)
@@ -100,16 +83,16 @@ Matrix<int>::multiply_matrix(vector<vector<int> > matrix_A,
     else {
         int split_index = col_1 / 2;
 
-        vector<int> row_vector(split_index, 0);
+        vector<double> row_vector(split_index, 0);
 
-        vector<vector<int> > a00(split_index, row_vector);
-        vector<vector<int> > a01(split_index, row_vector);
-        vector<vector<int> > a10(split_index, row_vector);
-        vector<vector<int> > a11(split_index, row_vector);
-        vector<vector<int> > b00(split_index, row_vector);
-        vector<vector<int> > b01(split_index, row_vector);
-        vector<vector<int> > b10(split_index, row_vector);
-        vector<vector<int> > b11(split_index, row_vector);
+        vector<vector<double> > a00(split_index, row_vector);
+        vector<vector<double> > a01(split_index, row_vector);
+        vector<vector<double> > a10(split_index, row_vector);
+        vector<vector<double> > a11(split_index, row_vector);
+        vector<vector<double> > b00(split_index, row_vector);
+        vector<vector<double> > b01(split_index, row_vector);
+        vector<vector<double> > b10(split_index, row_vector);
+        vector<vector<double> > b11(split_index, row_vector);
 
         for (auto i = 0; i < split_index; i++)
             for (auto j = 0; j < split_index; j++) {
@@ -125,33 +108,33 @@ Matrix<int>::multiply_matrix(vector<vector<int> > matrix_A,
                 [j + split_index];
             }
 
-        vector<vector<int> > p(multiply_matrix(
+        vector<vector<double> > p(multiply_matrix(
                 a00, add_matrix(b01, b11, split_index, -1)));
-        vector<vector<int> > q(multiply_matrix(
+        vector<vector<double> > q(multiply_matrix(
                 add_matrix(a00, a01, split_index,1), b11));
-        vector<vector<int> > r(multiply_matrix(
+        vector<vector<double> > r(multiply_matrix(
                 add_matrix(a10, a11, split_index,1), b00));
-        vector<vector<int> > s(multiply_matrix(
+        vector<vector<double> > s(multiply_matrix(
                 a11, add_matrix(b10, b00, split_index, -1)));
-        vector<vector<int> > t(multiply_matrix(
+        vector<vector<double> > t(multiply_matrix(
                 add_matrix(a00, a11, split_index,1),
                 add_matrix(b00, b11, split_index,1)));
-        vector<vector<int> > u(multiply_matrix(
+        vector<vector<double> > u(multiply_matrix(
                 add_matrix(a01, a11, split_index, -1),
                 add_matrix(b10, b11, split_index,1)));
-        vector<vector<int> > v(multiply_matrix(
+        vector<vector<double> > v(multiply_matrix(
                 add_matrix(a00, a10, split_index, -1),
                 add_matrix(b00, b01, split_index,1)));
 
-        vector<vector<int> > result_matrix_00(add_matrix(
+        vector<vector<double> > result_matrix_00(add_matrix(
                 add_matrix(add_matrix(t, s, split_index,1), u,
                            split_index,1),
                 q, split_index, -1));
-        vector<vector<int> > result_matrix_01(
+        vector<vector<double> > result_matrix_01(
                 add_matrix(p, q, split_index,1));
-        vector<vector<int> > result_matrix_10(
+        vector<vector<double> > result_matrix_10(
                 add_matrix(r, s, split_index,1));
-        vector<vector<int> > result_matrix_11(add_matrix(
+        vector<vector<double> > result_matrix_11(add_matrix(
                 add_matrix(add_matrix(t, p, split_index,1), r,
                            split_index, -1),
                 v, split_index, -1));
@@ -190,6 +173,41 @@ Matrix<int>::multiply_matrix(vector<vector<int> > matrix_A,
         result_matrix_11.clear();
     }
     return result_matrix;
+}
+// Адаптивный алгоритм Штрассена
+// pivot point = 1_000
+template<> Matrix<double> Matrix<double>::operator*(Matrix<double>& m) {
+    if(N > 1000){
+        size_t s = val.size();
+        vector<vector<double>> my_matrix;
+        for(int i = 0;i<s;i++){
+            vector<double> add;
+            auto temp = val[i];
+            for(int j = 0;j<s;j++)
+                add.push_back(temp[j]);
+            my_matrix.push_back(add);
+        }
+        vector<vector<double>> his_matrix;
+        for(int i = 0;i<s;i++){
+            vector<double> add;
+            auto temp = m.val[i];
+            for(int j = 0;j<s;j++)
+                add.push_back(temp[j]);
+            his_matrix.push_back(add);
+        }
+        auto a(multiply_matrix(my_matrix,his_matrix));
+        Matrix<double> res(s);
+        for(int i = 0;i<s;i++)
+            for(int j = 0;j<s;j++)
+                res[i][j] = a[i][j];
+        return res;
+    }
+    Matrix<double> help = m.transpose();
+    Matrix<double> r(N);
+    for (int i = 0; i < N; ++i)
+        for (int j = 0; j < N; ++j)
+            r[i][j] = val[i] * help[j];
+    return r;
 }
 template <typename T>
 Matrix<T> Matrix<T>::transpose() {
@@ -424,92 +442,92 @@ int chinese_remainder_theorem(const int* numbers, const int* remainders, int n)
 
     return result % prod;
 }
-pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<int>& b, int p){
-    unsigned int n = A.GetSize();
-    Matrix<int> U(n); // Матрица, запоминающая действия со строками
-    Matrix<int> R(n); // Матрица, запоминающая действия со столбцами
-    // Сначала U - единичная матрица
-    // Она будет присоединена к исходной матрице слева
-    for (int i = 0; i < n; ++i){
-        U.val[i][i] = 1;
-        R.val[i][i] = 1;
-    }
-    // O(n^2)
-    for (int i = 0; i < n; ++i) {
-        A[i] = A[i].mult_modulo(1,p);
-    }
-    // Идея такая: ищем минимальный по модулю остаток r (чтобы понизить константу)
-    // Затем находим к нему обратный по модулю m: r m = 1 mod p
-    // Пользуясь этим, зануляем остальные элементы: a r m  = a mod p . v - > v - (a * r * m) *v
-    // Так в каждом столбце
-    // Пройдя по столбцу, также пользуемся этим элементом, чтобы занулить элементы справа от него
-    int min, min_pos; // Минимальный ненулевой остаток в текущем столбце и его позиция
-    int inverse; // Обратный по модулю
-    for (int i = 0; i < n; ++i) {
-
-        // Текущий столбец
-        TDynamicVector<int> col(n);
-        for(int t=0;t<n;t++){
-            col[t] = A[t][i];
-        }
-        // Находим минимальный ненулевой остаток и его позицию
-        // Пока что проигнорировал случай, когда весь столбец нулевой
-        int j = 0;
-        while(col[j]==0){
-
-            j++;
-            if(j==n)
-                break;
-        }
-        if(j==n) continue;
-        min = col[j];
-        min_pos = j;
-        for (int k = j+1; k < n; k++) {
-            int temp = col[k];
-            if(temp!=0){
-                if(abs(temp)<abs(min)){
-                    min = temp;
-                    min_pos = k;
-                }
-            }
-        }
-        // Находим к нему обратный по модулю
-        inverse = modulo_inverse(min,p);
-
-        // Зануляем весь столбец
-        auto v = A[min_pos]; // Работаем этой строкой
-        auto v2 = U[min_pos];
-        for (int k = 0; k < n; ++k)
-            if(k!=min_pos){
-
-                int& t = col[k];
-                if(t!=0){
-                    //cout << A << endl;
-                    auto B = v.mult_modulo(-inverse *A[k][i],p);
-                    //cout << "It's adding "<< B<<endl<<"To "<<A[k] << endl;
-                    A[k] = A[k].add_modulo(B,p) ;
-                    U[k] = U[k].add_modulo(v2.mult_modulo(-inverse * U[k][i],p),p) ;
-                    //cout << A << endl;
-                }
-
-            }
-
-        // Зачищен столбец
-        // Проходим по строке A[min_pos] и зануляем элементы справа
-        for (int k = i+1; k < n; k++) {
-            int& t  = A[min_pos][k];
-            if(t!=0){
-                t = 0;
-                R[k] = R[k].add_modulo(R[i].mult_modulo(-inverse * t,p),p);
-            }
-        }
-        if(i!=n-1)
-            swap(A[i],A[min_pos]);
-
-    }
-    cout << A;
-    return {U,R.transpose()};
-}
+//pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<int>& b, int p){
+//    unsigned int n = A.GetSize();
+//    Matrix<int> U(n); // Матрица, запоминающая действия со строками
+//    Matrix<int> R(n); // Матрица, запоминающая действия со столбцами
+//    // Сначала U - единичная матрица
+//    // Она будет присоединена к исходной матрице слева
+//    for (int i = 0; i < n; ++i){
+//        U.val[i][i] = 1;
+//        R.val[i][i] = 1;
+//    }
+//    // O(n^2)
+//    for (int i = 0; i < n; ++i) {
+//        A[i] = A[i].mult_modulo(1,p);
+//    }
+//    // Идея такая: ищем минимальный по модулю остаток r (чтобы понизить константу)
+//    // Затем находим к нему обратный по модулю m: r m = 1 mod p
+//    // Пользуясь этим, зануляем остальные элементы: a r m  = a mod p . v - > v - (a * r * m) *v
+//    // Так в каждом столбце
+//    // Пройдя по столбцу, также пользуемся этим элементом, чтобы занулить элементы справа от него
+//    int min, min_pos; // Минимальный ненулевой остаток в текущем столбце и его позиция
+//    int inverse; // Обратный по модулю
+//    for (int i = 0; i < n; ++i) {
+//
+//        // Текущий столбец
+//        TDynamicVector<int> col(n);
+//        for(int t=0;t<n;t++){
+//            col[t] = A[t][i];
+//        }
+//        // Находим минимальный ненулевой остаток и его позицию
+//        // Пока что проигнорировал случай, когда весь столбец нулевой
+//        int j = 0;
+//        while(col[j]==0){
+//
+//            j++;
+//            if(j==n)
+//                break;
+//        }
+//        if(j==n) continue;
+//        min = col[j];
+//        min_pos = j;
+//        for (int k = j+1; k < n; k++) {
+//            int temp = col[k];
+//            if(temp!=0){
+//                if(abs(temp)<abs(min)){
+//                    min = temp;
+//                    min_pos = k;
+//                }
+//            }
+//        }
+//        // Находим к нему обратный по модулю
+//        inverse = modulo_inverse(min,p);
+//
+//        // Зануляем весь столбец
+//        auto v = A[min_pos]; // Работаем этой строкой
+//        auto v2 = U[min_pos];
+//        for (int k = 0; k < n; ++k)
+//            if(k!=min_pos){
+//
+//                int& t = col[k];
+//                if(t!=0){
+//                    //cout << A << endl;
+//                    auto B = v.mult_modulo(-inverse *A[k][i],p);
+//                    //cout << "It's adding "<< B<<endl<<"To "<<A[k] << endl;
+//                    A[k] = A[k].add_modulo(B,p) ;
+//                    U[k] = U[k].add_modulo(v2.mult_modulo(-inverse * U[k][i],p),p) ;
+//                    //cout << A << endl;
+//                }
+//
+//            }
+//
+//        // Зачищен столбец
+//        // Проходим по строке A[min_pos] и зануляем элементы справа
+//        for (int k = i+1; k < n; k++) {
+//            int& t  = A[min_pos][k];
+//            if(t!=0){
+//                t = 0;
+//                R[k] = R[k].add_modulo(R[i].mult_modulo(-inverse * t,p),p);
+//            }
+//        }
+//        if(i!=n-1)
+//            swap(A[i],A[min_pos]);
+//
+//    }
+//    cout << A;
+//    return {U,R.transpose()};
+//}
 vector<int> SieveOfEratosthenes(int n)
 {
     vector<int> result;
@@ -537,21 +555,93 @@ vector<int> SieveOfEratosthenes(int n)
             result.push_back(p);
     return result;
 }
-pair<Matrix<int>,Matrix<int>> solve_SLDE_modular_method(Matrix<int>& A, TDynamicVector<int>& b){
-    unsigned int n = A.GetSize();
-    // Во-первых, оцениваем, насколько большими могут стать элементы (a_i <= det A <= |A1| * |A2| * ... - Hadamard bound)
-    // [[ Этот шаг можно улучшить, воспользовавшись Леммой о двух векторах и определителе ]]
-    // В реальности в большинстве случайных матриц определитель мал
-    long HadamardBoundSq = 1;
-    for (int i = 0; i < n; ++i) {
-        HadamardBoundSq *= (A[i] * A[i]);
-    }
-    long double HadamardBound = sqrt(HadamardBoundSq);
-    auto primes = SieveOfEratosthenes(floor(HadamardBound));
-    unsigned int k = primes.size();
-    // По факту необходимое количество простых НАМНОГО МЕНЬШЕ!! Этот шаг можно оптимизировать
-    //Для каждого элемента матриц U и R создаётся массив остатков по модулю простых
-    // Во-вторых, решаем k * n * n систем по модулю p_i
-    // В-третьих, собираем всё вместе через CRT
-
+//pair<Matrix<int>,Matrix<int>> solve_SLDE_modular_method(Matrix<int>& A, TDynamicVector<int>& b){
+//    unsigned int n = A.GetSize();
+//    // Во-первых, оцениваем, насколько большими могут стать элементы (a_i <= det A <= |A1| * |A2| * ... - Hadamard bound)
+//    // [[ Этот шаг можно улучшить, воспользовавшись Леммой о двух векторах и определителе ]]
+//    // В реальности в большинстве случайных матриц определитель мал
+//    long HadamardBoundSq = 1;
+//    for (int i = 0; i < n; ++i) {
+//        HadamardBoundSq *= (A[i] * A[i]);
+//    }
+//    long double HadamardBound = sqrt(HadamardBoundSq);
+//    auto primes = SieveOfEratosthenes(floor(HadamardBound));
+//    unsigned int k = primes.size();
+//    // По факту необходимое количество простых НАМНОГО МЕНЬШЕ!! Этот шаг можно оптимизировать
+//    //Для каждого элемента матриц U и R создаётся массив остатков по модулю простых
+//    // Во-вторых, решаем k * n * n систем по модулю p_i
+//    // В-третьих, собираем всё вместе через CRT
+//
+//}
+Matrix<int> gen_public_key(int size,int range){
+    Matrix<int> m(size);
+    m.randomize(range);
+    return m;
 }
+//vector<Matrix<int>> gen_private_key(Matrix<int>& public_key){
+//    auto L = decompose(public_key);
+//    vector<Matrix<int>> RES(3);
+//    RES[0] = L.first;
+//    RES[1] = public_key;
+//    RES[2] = L.second;
+//    return RES;
+//}
+TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma){
+    auto length = message.size();
+    random_device rd;
+    mt19937_64 gen(rd());
+    uniform_int_distribution<> distr(-sigma,sigma);
+
+    TDynamicVector<int> r(length);
+    for (int i = 0;i<length;i++) {
+        r[i] = distr(gen);
+    }
+
+    return   public_key.transpose() * message + r;
+}
+
+TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R,short sigma){
+    // Быстро инвертируем приватный ключ. Это легко сделать, потому что векторы почти ортогональны
+    unsigned int s = private_key.GetSize();
+    // Сделаем из нашей матрицы матрицу из даблов
+    Matrix<double> tmp(s);
+    for (int i = 0; i < s; ++i)
+        for (int j = 0; j < s; ++j)
+            tmp[i][j] = private_key[i][j];
+    // Сделаем матрицу из даблов
+    Matrix<double> U_(s);
+    for (int i = 0; i < s; ++i)
+        for (int j = 0; j < s; ++j)
+            U_[i][j] = U[i][j];
+    // Сделаем матрицу из даблов
+    Matrix<double> R_(s);
+    for (int i = 0; i < s; ++i)
+        for (int j = 0; j < s; ++j)
+            R_[i][j] = R[i][j];
+    // Создадим единичную матрицу
+    Matrix<double> inverse(s);
+    for (int i = 0; i < s; ++i)
+        for (int j = 0; j < s; ++j)
+            inverse[i][j] = (i==j);
+    // Теперь посчитаем обратную
+    for (int i = 0; i < s; ++i) {
+        auto el = tmp[i][i];
+        tmp[i] = tmp[i] * (1/el);
+        inverse[i] = inverse[i] * (1/el);
+        for (int j = 0; j < i; ++j) {
+            auto p = tmp[j][i];
+            if(p!=0){
+                tmp[j] = tmp[j] - tmp[i] * p;
+                inverse[j] = inverse[j] - inverse[i] * p;
+            }
+        }
+    }
+    auto res_matrix = R_ * inverse * U_;
+    size_t ms = message.size();
+    TDynamicVector<double> message_(ms);
+    for (int i = 0; i < ms;i++) {
+        message_[i] = message[i];
+    }
+    auto v_ = res_matrix * message_;
+    // Теперь используется алгоритм Бабая
+    }

@@ -4,11 +4,11 @@
 using namespace std::chrono;
 
 int main() {
-    Matrix A(10);
+    Matrix<int> A(200);
 
     A.randomize(20);
-    Matrix C(A);
-    cout << A << "----------------------"<<endl;
+    Matrix<int> C(A);
+    //cout << A << "----------------------"<<endl;
     //cout << C;
 //    a[0][0] = 7;
 //    a[1][0] = 7;

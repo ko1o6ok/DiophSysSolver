@@ -15,8 +15,6 @@ protected:
     size_t sz{};
     T* pMem;
 public:
-
-
     TDynamicVector(T* arr, size_t s) : sz(s)
     {
         assert(arr != nullptr && "TDynamicVector ctor requires non-nullptr arg");
@@ -185,25 +183,6 @@ public:
             t.pMem[i] -= v[i];
         return t;
     }
-    unsigned int find_min_nonzero(){
-        if(sz == 1)
-            return 0;
-        int m = pMem[0];
-        int i = 0;
-        while (pMem[i]==0){
-            i++;
-        }
-        int m_pos = i;
-        while (i < sz){
-            auto t = pMem[i];
-            if((t!=0)&&(t < m)){
-                m = t;
-                m_pos = i;
-            }
-            i++;
-        }
-        return m_pos;
-    }
     T operator*(const TDynamicVector& v) //noexcept(noexcept(T())) - вынужден это закомментить, чтобы бросать exception-ы для тестов
     {
         if(sz != v.sz)
@@ -233,36 +212,6 @@ public:
             ostr << v.pMem[i] << ", "; // требуется оператор<< для типа T
         return ostr;
     }
-    // min1,min2
-    pair<int,int> pos_two_min_nonzero_el_s(){
-        int s = 0;
-        while (pMem[s]==0)
-            s++;
-        int m1 = pMem[s];
-        int m1_pos = s;
-        for (int i = 1; i < sz; ++i) {
-            int t = pMem[i];
-            if(t!=0){
-                if(abs(t) < abs(m1) ){
-                    m1 = t;
-                    m1_pos = i;
-                }
-            }
-
-        }
-        int m2 = pMem[0];
-        int m2_pos = 0;
-        for (int i = 1; i < sz; ++i) {
-            int t = pMem[i];
-            if(t!=0){
-                if((t!=m1)&&(t < abs(m2) )){
-                    m2 = t;
-                    m2_pos = i;
-                }
-            }
-        }
-        return {m1_pos,m2_pos};
-    }
 };
 
 
@@ -271,25 +220,24 @@ template<typename T>
 class Matrix {
 private:
     unsigned int N; // Размер
-
 public:
     TDynamicVector<TDynamicVector<T>> val;
     unsigned int GetSize() const;
     // Операции выбраны исходя из необходимости
     explicit Matrix(unsigned int n); // n * n zero matrix
-    explicit Matrix(const TDynamicVector<TDynamicVector<int>>& v); // Преобразователь типа
-    TDynamicVector<int>& operator[](unsigned int i); // i-я строка
+    explicit Matrix(const TDynamicVector<TDynamicVector<T>>& v); // Преобразователь типа
+    TDynamicVector<T>& operator[](unsigned int i); // i-я строка
     Matrix operator*(Matrix& m); // the most important function, it needs to be fast. Using adaptive Strassen's method
-    TDynamicVector<int> operator*(const TDynamicVector<int>& vec);
+    TDynamicVector<T> operator*(const TDynamicVector<T>& vec);
     Matrix transpose();
-    friend ostream& operator<<(ostream& ostr, Matrix& m);
-    static vector<vector<int> >
-    add_matrix(vector<vector<int> > matrix_A,
-               vector<vector<int> > matrix_B, int split_index,
+    friend ostream& operator<<(ostream& ostr, Matrix<T>& m);
+    static vector<vector<double> >
+    add_matrix(vector<vector<double> > matrix_A,
+               vector<vector<double> > matrix_B, int split_index,
                int multiplier );
-    static vector<vector<int> >
-    multiply_matrix(vector<vector<int> > matrix_A,
-                    vector<vector<int> > matrix_B);
+    static vector<vector<double> >
+    multiply_matrix(vector<vector<double> > matrix_A,
+                    vector<vector<double> > matrix_B);
     void randomize(unsigned int range); // random int values
 
 };
@@ -303,37 +251,14 @@ pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<in
 vector<int> SieveOfEratosthenes(int n); // Возвращает вектор простых чисел, меньших n
 pair<Matrix<int>,Matrix<int>> solve_SLDE_modular_method(Matrix<int>& A, TDynamicVector<int>& b); // Решаем достаточно систем по модулю, затем собираем всё вместе
 //--------------------------------------------------------------
-// GGH cryptoalgorithm
+// GGH crypto-algorithm
 //--------------------------------------------------------------
-Matrix<int> gen_public_key(int size,int range){
-    Matrix<int> m(size);
-    m.randomize(range);
-    return m;
-}
-vector<Matrix<int>> gen_private_key(Matrix<int>& public_key){
-    auto L = decompose(public_key);
-    vector<Matrix<int>> RES(3);
-    RES[0] = L.first;
-    RES[1] = public_key;
-    RES[2] = L.second;
-    return RES;
-}
+Matrix<int> gen_public_key(int size,int range);
+vector<Matrix<int>> gen_private_key(Matrix<int>& public_key);
+
 // e = x A + r
-TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma){
-    auto length = message.size();
-    random_device rd;
-    mt19937_64 gen(rd());
-    uniform_int_distribution<> distr(-sigma,sigma);
+TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma);
 
-    TDynamicVector<int> r(length);
-    for (int i = 0;i<length;i++) {
-        r[i] = distr(gen);
-    }
+TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R,short sigma);
 
-    return   public_key.transpose() * message + r;
-}
-TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R){
-    // Быстро инвертируем приватный ключ. Это легко сделать, потому что векторы почти ортогональны
-
-}
 #endif //FASTHNF_MATRIX_H
