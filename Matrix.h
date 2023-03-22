@@ -129,15 +129,15 @@ public:
             pMem[i] += val;
         return *this;
     }
-    TDynamicVector operator-(double val)
+    TDynamicVector operator-(T val)
     {
         for (int i = 0; i < sz; ++i)
             pMem[i] -= val;
         return *this;
     }
-    TDynamicVector operator*(double val)
+    TDynamicVector operator*(T val)
     {
-        TDynamicVector<int> temp(sz);
+        TDynamicVector<T> temp(sz);
         for (int i = 0; i < sz; ++i)
              temp[i]= pMem[i] * val;
         return temp;
@@ -212,6 +212,7 @@ public:
             ostr << v.pMem[i] << ", "; // требуется оператор<< для типа T
         return ostr;
     }
+
 };
 
 
@@ -231,6 +232,7 @@ public:
     TDynamicVector<T> operator*(const TDynamicVector<T>& vec);
     Matrix transpose();
     friend ostream& operator<<(ostream& ostr, Matrix<T>& m);
+    void print(); // ВТорой вывод
     static vector<vector<double> >
     add_matrix(vector<vector<double> > matrix_A,
                vector<vector<double> > matrix_B, int split_index,

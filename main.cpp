@@ -4,10 +4,27 @@
 using namespace std::chrono;
 
 int main() {
-    Matrix<int> A(200);
+    auto public_key = gen_public_key(3,20);
 
-    A.randomize(20);
-    Matrix<int> C(A);
+    vector<int> msg = {-5,1,0};
+
+    TDynamicVector<int> message(msg);
+
+    cout << "Initial message is "<< message<< endl;
+
+    auto encrypted_message = encrypt(message,public_key,1);
+
+    cout << "Encrypted message is "<< encrypted_message<< endl;
+
+    auto pr = decompose(public_key);
+    public_key.print();
+    auto decrypted_message = decrypt(encrypted_message,pr.first,public_key,pr.second,3);
+
+    cout << "Decrypted message is "<< decrypted_message<< endl;
+//    Matrix<int> A(10);
+//
+//    A.randomize(20);
+//    Matrix<int> C(A);
     //cout << A << "----------------------"<<endl;
     //cout << C;
 //    a[0][0] = 7;
@@ -15,13 +32,13 @@ int main() {
 //    a[2][0] = 7;
     //cout << "Testing on start matrix:"<<endl<<a;
     //cout << a ;
-    TDynamicVector<int> b;
-
-    auto start = high_resolution_clock::now();
-    decompose(A);
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(stop - start);
-    cout <<"v3: "<<duration.count()<< " ms"<< endl;
+//    TDynamicVector<int> b;
+//
+//    auto start = high_resolution_clock::now();
+//    decompose(A);
+//    auto stop = high_resolution_clock::now();
+//    auto duration = duration_cast<milliseconds>(stop - start);
+//    cout <<"v3: "<<duration.count()<< " ms"<< endl;
 
 //    auto start1 = high_resolution_clock::now();
 //    solve_SLDE_v4(C,b);

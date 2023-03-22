@@ -234,6 +234,14 @@ template<> void Matrix<int>::randomize(unsigned int range) {
 }
 
 
+template<> void Matrix<int>::print() {
+    for (int i = 0; i <N; ++i) {
+        cout << val[i] ;
+        cout << endl;
+    }
+}
+
+
 pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A) {
     unsigned int n = A.GetSize();
 //    auto B = A.transpose();
@@ -600,7 +608,7 @@ TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& pub
     return   public_key.transpose() * message + r;
 }
 
-TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R,short sigma){
+TDynamicVector<int> decrypt(const TDynamicVector<int>& encrypted_message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R,short sigma){
     // Быстро инвертируем приватный ключ. Это легко сделать, потому что векторы почти ортогональны
     unsigned int s = private_key.GetSize();
     // Сделаем из нашей матрицы матрицу из даблов
@@ -637,11 +645,19 @@ TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Ma
         }
     }
     auto res_matrix = R_ * inverse * U_;
-    size_t ms = message.size();
-    TDynamicVector<double> message_(ms);
+    size_t ms = encrypted_message.size();
+    TDynamicVector<double> encrypted_message_(ms);
     for (int i = 0; i < ms;i++) {
-        message_[i] = message[i];
+        encrypted_message_[i] = encrypted_message[i];
     }
-    auto v_ = res_matrix * message_;
+    auto v_ = res_matrix.transpose() * encrypted_message_;
     // Теперь используется алгоритм Бабая
+    // D x = v
+    auto x = inverse.transpose() * v_;
+    TDynamicVector<int> x_(x.size());
+    for (int i = 0; i < x.size(); ++i) {
+        x_[i] = round(x[i]);
+    }
+    auto decrypted_message = private_key.transpose() * x_;
+    return decrypted_message;
     }
