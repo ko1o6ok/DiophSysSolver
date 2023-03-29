@@ -4,42 +4,61 @@
 using namespace std::chrono;
 
 int main() {
-    auto public_key = gen_public_key(3,20);
-
-    vector<int> msg = {-5,1,0};
-
-    TDynamicVector<int> message(msg);
-
-    cout << "Initial message is "<< message<< endl;
-
-    auto encrypted_message = encrypt(message,public_key,1);
-
-    cout << "Encrypted message is "<< encrypted_message<< endl;
-
-    auto pr = decompose(public_key);
-    public_key.print();
-    auto decrypted_message = decrypt(encrypted_message,pr.first,public_key,pr.second,3);
-
-    cout << "Decrypted message is "<< decrypted_message<< endl;
-//    Matrix<int> A(10);
+    // Алиса
+//    auto rand_matrix = gen_public_key(5,20);
+//    // Сохранили
+//    auto public_key = rand_matrix;
+//    auto pr = decompose(rand_matrix);
+//    rand_matrix.print();
+//    //rand_matrix.print();
+//    //((pr.second * A) * pr.first).print();
+//    //A.print();
 //
-//    A.randomize(20);
-//    Matrix<int> C(A);
-    //cout << A << "----------------------"<<endl;
-    //cout << C;
-//    a[0][0] = 7;
-//    a[1][0] = 7;
-//    a[2][0] = 7;
-    //cout << "Testing on start matrix:"<<endl<<a;
-    //cout << a ;
-//    TDynamicVector<int> b;
 //
-//    auto start = high_resolution_clock::now();
-//    decompose(A);
-//    auto stop = high_resolution_clock::now();
-//    auto duration = duration_cast<milliseconds>(stop - start);
-//    cout <<"v3: "<<duration.count()<< " ms"<< endl;
+//    vector<int> msg = {-1,1,0,1,1};
+//
+//    TDynamicVector<int> message(msg);
+//
+//    cout << "Initial message is "<< message<< endl;
+//
+//    auto encrypted_message = encrypt(message,public_key,1);
+//
+//    cout << "Encrypted message is "<< encrypted_message<< endl;
+//    //rand_matrix.print();
+//    //public_key.print();
+//
+//    auto decrypted_message = decrypt(encrypted_message,pr.first,rand_matrix,pr.second,1);
+//
+//    cout << "Decrypted message is "<< decrypted_message<< endl;
+    Matrix<int> A(10);
+//    TDynamicVector<int> a1({1, 1,1});
+//    TDynamicVector<int> a2 ({-1,-1,-1});
+//    TDynamicVector<int> a3({1,-1,1});
+//    A[0] = a1;
+//    A[1] = a2;
+//    A[2] = a3;
+    A.randomize(1);
+    A[0] = A[1];
+    A[2] = A[1];
+    cout<< "----------------------"<<endl;
+    cout << "Testing on start matrix:"<<endl;
+    A.print() ;
+    //TDynamicVector<int> b;
 
+    auto start = high_resolution_clock::now();
+    compute_SNF(A);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    cout <<"v3: "<<duration.count()<< " ms"<< endl;
+    cout << "The result is:"<< endl;
+    A.print();
+    auto B = A.transpose();
+    compute_SNF(B);
+    cout << endl;
+    B.print();
+    //cout << endl << "Is it in SNF? -> "<<check_SNF(A)<< endl;
+    //indexes_wrong_part(A);
+    //print_wrong_part(A);
 //    auto start1 = high_resolution_clock::now();
 //    solve_SLDE_v4(C,b);
 //    auto stop1 = high_resolution_clock::now();

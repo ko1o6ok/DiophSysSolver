@@ -247,7 +247,7 @@ int modulo_inverse(int a, int rem); // Обратный по модулю
 int chinese_remainder_theorem(const int* numbers, const int* remainders, int n); // Мин. положит. решение китайской теоремы об остатках
 
 pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A); //  [ THE BEST SO FAR ]
-
+void compute_SNF(Matrix<int>& A);
 pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<int>& b,int p); // Ax = b mod p
 // В перспективе будут возвращаться две матрицы: U и R. U A R = S, S - смитова нормальная форма
 vector<int> SieveOfEratosthenes(int n); // Возвращает вектор простых чисел, меньших n
@@ -261,6 +261,6 @@ vector<Matrix<int>> gen_private_key(Matrix<int>& public_key);
 // e = x A + r
 TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma);
 
-TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R,short sigma);
+TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> A,short sigma);
 
 #endif //FASTHNF_MATRIX_H
