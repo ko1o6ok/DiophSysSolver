@@ -73,6 +73,18 @@ build CMakeFiles/FastHNF.dir/Matrix.cpp.obj: CXX_COMPILER__FastHNF_Debug C$:/C++
   OBJECT_DIR = CMakeFiles\FastHNF.dir
   OBJECT_FILE_DIR = CMakeFiles\FastHNF.dir
 
+build CMakeFiles/FastHNF.dir/SimplicialComplex.cpp.obj: CXX_COMPILER__FastHNF_Debug C$:/C++_proj/FastHNF/SimplicialComplex.cpp || cmake_object_order_depends_target_FastHNF
+  DEP_FILE = CMakeFiles\FastHNF.dir\SimplicialComplex.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\FastHNF.dir
+  OBJECT_FILE_DIR = CMakeFiles\FastHNF.dir
+
+build CMakeFiles/FastHNF.dir/Simplex.cpp.obj: CXX_COMPILER__FastHNF_Debug C$:/C++_proj/FastHNF/Simplex.cpp || cmake_object_order_depends_target_FastHNF
+  DEP_FILE = CMakeFiles\FastHNF.dir\Simplex.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\FastHNF.dir
+  OBJECT_FILE_DIR = CMakeFiles\FastHNF.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target FastHNF
@@ -81,7 +93,7 @@ build CMakeFiles/FastHNF.dir/Matrix.cpp.obj: CXX_COMPILER__FastHNF_Debug C$:/C++
 #############################################
 # Link the executable FastHNF.exe
 
-build FastHNF.exe: CXX_EXECUTABLE_LINKER__FastHNF_Debug CMakeFiles/FastHNF.dir/main.cpp.obj CMakeFiles/FastHNF.dir/Matrix.cpp.obj
+build FastHNF.exe: CXX_EXECUTABLE_LINKER__FastHNF_Debug CMakeFiles/FastHNF.dir/main.cpp.obj CMakeFiles/FastHNF.dir/Matrix.cpp.obj CMakeFiles/FastHNF.dir/SimplicialComplex.cpp.obj CMakeFiles/FastHNF.dir/Simplex.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\FastHNF.dir
