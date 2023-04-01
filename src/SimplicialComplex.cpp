@@ -1,7 +1,7 @@
 
 
 #include "SimplicialComplex.h"
-#include <cmath>
+
 SimplexTree SimplicialComplex::reduce_to_simplex_tree() {
     auto tree = SimplexTree();
     for(auto& simplex:simplexes)
