@@ -5,12 +5,16 @@
 
 class SimplicialComplex {
     int max_dimension;
-    vector<Vertex> vertices; // Вершины
+    list<Vertex> vertices; // Вершины
     vector<Simplex> simplexes; // Все симплексы
+
     Matrix<int> border_operator_matrix(int k); // Матрица линейного оператора границы для размерности k
     int k_th_betti_number(int k); // Число Бэтти размерности k
     SimplexTree reduce_to_simplex_tree();// Сжимаем комплекс в дерево
     vector<Simplex> simplexes_of_dim(int k);
+    SimplicialComplex();
+    SimplicialComplex(Matrix<double> m); // Построение из облака точек
+
 };
 
 

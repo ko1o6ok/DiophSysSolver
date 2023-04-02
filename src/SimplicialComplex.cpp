@@ -2,6 +2,8 @@
 
 #include "SimplicialComplex.h"
 
+#include <utility>
+
 SimplexTree SimplicialComplex::reduce_to_simplex_tree() {
     auto tree = SimplexTree();
     for(auto& simplex:simplexes)
@@ -16,4 +18,8 @@ vector<Simplex> SimplicialComplex::simplexes_of_dim(int k) {
         if(simplex.dimension == k)
             res.push_back(simplex);
     return res;
+}
+
+SimplicialComplex::SimplicialComplex() {
+    max_dimension = 0;
 }

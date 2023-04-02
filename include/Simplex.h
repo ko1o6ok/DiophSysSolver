@@ -6,6 +6,7 @@
 #define FASTHNF_SIMPLEX_H
 
 #include <vector>
+#include <list>
 #include "Matrix.h"
 using namespace std;
 
@@ -18,31 +19,39 @@ public:
 
 class Simplex {
 public:
-    int dimension;
-    vector<Simplex> faces;
-    vector<Vertex> vertices; // Вершины должны составлять упорядоченный по индексам список
+    unsigned long dimension;
+    //vector<Simplex> faces;
+    list<Vertex> vertices; // Вершины должны составлять упорядоченный по индексам список
     vector<unsigned long> make_word(); // Вернуть упорядоченную по возрастанию последовательность номеров вершин
+    Simplex();
+    ~Simplex();
+    explicit Simplex(vector<int> v); // По вершинам
+    Simplex(Simplex const &s); // Конструктор копирования
+    void add_vertex(unsigned long ind); // Добавить новую вершину
+    friend ostream& operator<<(ostream& stream,const Simplex& s); // Вывод
 };
 
 struct MyNode{
     vector<MyNode*> children;
     unsigned long last_index;
-    static struct MyNode* make_a_node(unsigned long last_index);
-    void add_child(MyNode* node, unsigned long last_index);
 };
-
+MyNode* add_child(MyNode* node, unsigned long last_index);
+MyNode* make_a_node(unsigned long last_index);
 // Симплексное дерево
 class SimplexTree{
 public:
     MyNode* root;
+    unsigned long num_vertices;
     void insert_simplex(Simplex s);
-    void make_a_root();
-
+    void insert_simplex(vector<int> v);
+    vector<Simplex> all_simplexes_of_dim(int k) const; // Строит по дереву все симплексы размерности k
 
 public:
     // Базовый конструктор
     SimplexTree();
+    // Базовый деструктор
+    ~SimplexTree();
 };
-
-
+void print_tree(const string& prefix,MyNode* rt);// Выписать дерево
+void simplexes_of_dim(MyNode* current_node,int k,vector<Simplex>& simplexes,const Simplex& current_simplex);
 #endif //FASTHNF_SIMPLEX_H

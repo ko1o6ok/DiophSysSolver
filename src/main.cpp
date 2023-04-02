@@ -1,9 +1,24 @@
 #include "Matrix.h"
+#include "Simplex.h"
 #include <chrono>
 #include <fstream>
 using namespace std::chrono;
 
 int main() {
+    auto tree = SimplexTree();
+
+    tree.insert_simplex({3,2,1});
+    tree.insert_simplex({4,2,1});
+    //tree.insert_simplex({2,3});
+//    cout << s << endl;
+//    add_child(tree.root,1);
+    print_tree("",tree.root);
+    vector<Simplex> simplexes = tree.all_simplexes_of_dim(0);
+    //cout << simplexes.size();
+    for (const auto& s:simplexes) {
+        cout <<s<< endl;
+    }
+    cout << tree.num_vertices ;
     // Алиса
 //    auto rand_matrix = gen_public_key(5,20);
 //    // Сохранили
@@ -30,32 +45,32 @@ int main() {
 //    auto decrypted_message = decrypt(encrypted_message,pr.first,rand_matrix,pr.second,1);
 //
 //    cout << "Decrypted message is "<< decrypted_message<< endl;
-    Matrix<int> A(10);
+//    Matrix<int> A(10);
 //    TDynamicVector<int> a1({1, 1,1});
 //    TDynamicVector<int> a2 ({-1,-1,-1});
 //    TDynamicVector<int> a3({1,-1,1});
 //    A[0] = a1;
 //    A[1] = a2;
 //    A[2] = a3;
-    A.randomize(1);
-    A[0] = A[1];
-    A[2] = A[1];
-    cout<< "----------------------"<<endl;
-    cout << "Testing on start matrix:"<<endl;
-    A.print() ;
+//    A.randomize(1);
+//    A[0] = A[1];
+//    A[2] = A[1];
+//    cout<< "----------------------"<<endl;
+//    cout << "Testing on start matrix:"<<endl;
+//    A.print() ;
     //TDynamicVector<int> b;
 
-    auto start = high_resolution_clock::now();
-    compute_SNF(A);
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(stop - start);
-    cout <<"v3: "<<duration.count()<< " ms"<< endl;
-    cout << "The result is:"<< endl;
-    A.print();
-    auto B = A.transpose();
-    compute_SNF(B);
-    cout << endl;
-    B.print();
+//    auto start = high_resolution_clock::now();
+//    compute_SNF(A);
+//    auto stop = high_resolution_clock::now();
+//    auto duration = duration_cast<milliseconds>(stop - start);
+//    cout <<"v3: "<<duration.count()<< " ms"<< endl;
+//    cout << "The result is:"<< endl;
+//    A.print();
+//    auto B = A.transpose();
+//    compute_SNF(B); // Если сделать этот же алгоритм от трансп. матрицы, то он вычисляет SNF
+//    cout << endl;
+//    B.print();
     //cout << endl << "Is it in SNF? -> "<<check_SNF(A)<< endl;
     //indexes_wrong_part(A);
     //print_wrong_part(A);
