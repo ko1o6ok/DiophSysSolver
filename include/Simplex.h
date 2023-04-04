@@ -40,15 +40,18 @@ MyNode* make_a_node(unsigned long last_index);
 // Симплексное дерево
 class SimplexTree{
 public:
-    MyNode* root;
-    unsigned long num_vertices;
+    MyNode* root; // Корень
+    vector<vector<double>> point_cloud; // Порождающее множество точек
+    unsigned long num_vertices; // Число вершин
     void insert_simplex(Simplex s);
     void insert_simplex(vector<int> v);
     vector<Simplex> all_simplexes_of_dim(int k) const; // Строит по дереву все симплексы размерности k
+    void construct_from_point_cloud(double eps) const; // Строит симплекс-дерево на основе графа ближайших соседей
 
 public:
     // Базовый конструктор
     SimplexTree();
+    explicit SimplexTree(vector<vector<double>>& pnt_cld); // Просто множество симплексов размерности 0 на основе множества точек
     // Базовый деструктор
     ~SimplexTree();
 };

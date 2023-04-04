@@ -3,4 +3,4 @@ project(FastHNF)
 set(CMAKE_CXX_STANDARD 14)
 
 include_directories(include)
-add_executable(FastHNF src/main.cpp src/Matrix.cpp src/SimplicialComplex.cpp src/Simplex.cpp)
+add_executable(FastHNF src/main.cpp src/Matrix.cpp src/SimplicialComplex.cpp src/Simplex.cpp src/Graph.cpp)

@@ -1,24 +1,33 @@
 #include "Matrix.h"
 #include "Simplex.h"
+#include "Graph.h"
 #include <chrono>
 #include <fstream>
 using namespace std::chrono;
 
 int main() {
-    auto tree = SimplexTree();
-
-    tree.insert_simplex({3,2,1});
-    tree.insert_simplex({4,2,1});
-    //tree.insert_simplex({2,3});
-//    cout << s << endl;
-//    add_child(tree.root,1);
-    print_tree("",tree.root);
-    vector<Simplex> simplexes = tree.all_simplexes_of_dim(0);
-    //cout << simplexes.size();
-    for (const auto& s:simplexes) {
-        cout <<s<< endl;
-    }
-    cout << tree.num_vertices ;
+    vector<double> a ={0.0,0.0,0.0};
+    vector<double> b ={0.0,1.5,0.0};
+    vector<double> c ={0.0,0.0,2.3};
+    vector<vector<double>> cloud = {a,b,c};
+    Graph g(cloud);
+    g.connect_eps_neighbours(2.2);
+    //g.connect_vertices(1,2);
+    g.print_adj_matrix();
+//    auto tree = SimplexTree();
+//
+//    tree.insert_simplex({3,2,1});
+//    tree.insert_simplex({4,2,1});
+//    //tree.insert_simplex({2,3});
+////    cout << s << endl;
+////    add_child(tree.root,1);
+//    print_tree("",tree.root);
+//    vector<Simplex> simplexes = tree.all_simplexes_of_dim(2);
+//    //cout << simplexes.size();
+//    for (const auto& s:simplexes) {
+//        cout <<s<< endl;
+//    }
+//    cout << tree.num_vertices ;
     // Алиса
 //    auto rand_matrix = gen_public_key(5,20);
 //    // Сохранили

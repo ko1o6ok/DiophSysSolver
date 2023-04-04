@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <utility>
 #include "Simplex.h"
-
+#include "Graph.h"
 Vertex::Vertex(unsigned long ind) {
     index = ind;
 }
@@ -95,6 +95,20 @@ vector<Simplex> SimplexTree::all_simplexes_of_dim(int k) const {
     vector<Simplex> simplexes;
     simplexes_of_dim(root,k+1,simplexes,Simplex());
     return simplexes;
+}
+
+void SimplexTree::construct_from_point_cloud(double eps) const {
+    // Создали граф ближайших соседей
+    Graph g(point_cloud);
+    g.connect_eps_neighbours(eps);
+    // На его основе создаём комплекс Вьеториса-Рипса
+
+}
+
+SimplexTree::SimplexTree(vector<vector<double>> &pnt_cld) {
+    point_cloud = pnt_cld;
+    root = make_a_node(0);
+    num_vertices = pnt_cld.size();
 }
 
 void print_tree(const string& prefix,MyNode* rt) {
