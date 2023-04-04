@@ -16,7 +16,7 @@ vector<unsigned long> Simplex::make_word() {
     return word;
 }
 
-Simplex::Simplex(vector<int> v) {
+Simplex::Simplex(vector<unsigned long> v) {
     dimension = v.size() -1;
     sort(v.begin(), v.end());
     for(auto t:v)
@@ -86,7 +86,7 @@ SimplexTree::SimplexTree() {
 //    return res;
 //}
 
-void SimplexTree::insert_simplex(vector<int> v) {
+void SimplexTree::insert_simplex(vector<unsigned long> v){
     auto s = Simplex(std::move(v));
     insert_simplex(s);
 }
@@ -97,11 +97,58 @@ vector<Simplex> SimplexTree::all_simplexes_of_dim(int k) const {
     return simplexes;
 }
 
-void SimplexTree::construct_from_point_cloud(double eps) const {
+void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double eps) {
     // Создали граф ближайших соседей
     Graph g(point_cloud);
     g.connect_eps_neighbours(eps);
-    // На его основе создаём комплекс Вьеториса-Рипса
+    // На его основе создаём комплекс Вьеториса-Рипса:
+
+    // Сначала заносим просто все точки
+    for (int i = 0; i < num_vertices; ++i) {
+        add_child(root,i);
+    }
+
+    // Индуктивно добавляем симплексы размерности <= max_dimension
+    for (int k = 1; k < max_dimension+1; ++k) {
+        auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
+        if(!simplexes.empty()){
+            vector<vector<unsigned long>> words; // Все "слова", соответствующие этим симплексам
+            words.reserve(simplexes.size());
+            for (auto& simplex:simplexes) {
+                words.push_back(simplex.make_word());
+            }
+            for (auto& word:words) {
+                // Здесь важно учесть случай, когда буква в слове лишь одна!!
+                unsigned long last, prev_last;
+                if(k == 1){
+                    last = word[0];
+                    prev_last = last;
+                }
+                else{
+                    last = word[k-1];
+                    prev_last = word[k-2];
+                }
+
+                auto s = last + 1;
+                auto row = g.adj_matrix[prev_last];
+                bool pushed = false;
+                while (s < num_vertices){
+                    if(row[s] != 0){
+                        word.push_back(s);
+                        pushed = true;
+                        break;
+                    }
+                    s++;
+                }
+                if(pushed)
+                    insert_simplex(word);
+        }
+            words.clear();
+            simplexes.clear();
+        }
+
+    }
+
 
 }
 
@@ -109,6 +156,10 @@ SimplexTree::SimplexTree(vector<vector<double>> &pnt_cld) {
     point_cloud = pnt_cld;
     root = make_a_node(0);
     num_vertices = pnt_cld.size();
+}
+
+void SimplexTree::print() const {
+    print_tree("",root);
 }
 
 void print_tree(const string& prefix,MyNode* rt) {

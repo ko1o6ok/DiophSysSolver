@@ -25,7 +25,7 @@ public:
     vector<unsigned long> make_word(); // Вернуть упорядоченную по возрастанию последовательность номеров вершин
     Simplex();
     ~Simplex();
-    explicit Simplex(vector<int> v); // По вершинам
+    explicit Simplex(vector<unsigned long> v); // По вершинам
     Simplex(Simplex const &s); // Конструктор копирования
     void add_vertex(unsigned long ind); // Добавить новую вершину
     friend ostream& operator<<(ostream& stream,const Simplex& s); // Вывод
@@ -44,14 +44,15 @@ public:
     vector<vector<double>> point_cloud; // Порождающее множество точек
     unsigned long num_vertices; // Число вершин
     void insert_simplex(Simplex s);
-    void insert_simplex(vector<int> v);
+    void insert_simplex(vector<unsigned long> v);
     vector<Simplex> all_simplexes_of_dim(int k) const; // Строит по дереву все симплексы размерности k
-    void construct_from_point_cloud(double eps) const; // Строит симплекс-дерево на основе графа ближайших соседей
-
+    void construct_from_point_cloud(unsigned long max_dimension,double eps); // Строит симплекс-дерево на основе графа ближайших соседей
+    Matrix<long int> border_operator_matrix(int dimension); // Матрица оператора границы
 public:
     // Базовый конструктор
     SimplexTree();
     explicit SimplexTree(vector<vector<double>>& pnt_cld); // Просто множество симплексов размерности 0 на основе множества точек
+    void print() const;
     // Базовый деструктор
     ~SimplexTree();
 };
