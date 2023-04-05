@@ -13,8 +13,9 @@ class TDynamicVector
 
 protected:
     size_t sz{};
-    T* pMem;
+
 public:
+    T* pMem;
     TDynamicVector(T* arr, size_t s) : sz(s)
     {
         assert(arr != nullptr && "TDynamicVector ctor requires non-nullptr arg");
@@ -78,7 +79,16 @@ public:
         }
         return *this;
     }
-
+    void push(T el){
+        TDynamicVector<T> temp(*this);
+        delete[] pMem;
+        pMem = new T[sz+1](); // Это перепроверить
+        for (int i = 0; i < sz; ++i){
+            pMem[i] = temp.pMem[i];
+        }
+        pMem[sz] = el;
+        sz = sz+1;
+    }
     size_t size() const noexcept { return sz; }
 
     // индексация
@@ -224,6 +234,7 @@ private:
 public:
     TDynamicVector<TDynamicVector<T>> val;
     unsigned int GetSize() const;
+    void SetSize(unsigned int s);
     // Операции выбраны исходя из необходимости
     explicit Matrix(unsigned int n); // n * n zero matrix
     explicit Matrix(const TDynamicVector<TDynamicVector<T>>& v); // Преобразователь типа

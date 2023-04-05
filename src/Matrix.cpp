@@ -13,8 +13,18 @@ Matrix<T>::Matrix(unsigned int n) {
     for (int i = 0; i < N; ++i)
             val[i] = TDynamicVector<T>(N);
 }
+template<> Matrix<long>::Matrix(unsigned int n) {
+    N = n;
+    val = TDynamicVector<TDynamicVector<long>>(N);
+    for (int i = 0; i < N; ++i)
+        val[i] = TDynamicVector<long>(N);
+}
 template <typename T>
 Matrix<T>::Matrix(const TDynamicVector<TDynamicVector<T>>& v) {
+    N = v.size();
+    val = v;
+}
+template<> Matrix<long>::Matrix(const TDynamicVector<TDynamicVector<long>>& v) {
     N = v.size();
     val = v;
 }
@@ -22,7 +32,9 @@ template <typename T>
 TDynamicVector<T>& Matrix<T>::operator[](unsigned int i) {
     return val[i];
 }
-
+template<> TDynamicVector<long>& Matrix<long>::operator[](unsigned int i) {
+    return val[i];
+}
 template <typename T>
 TDynamicVector<T> Matrix<T>::operator*(const TDynamicVector<T>& vec) {
     // Предполагается, что размер vec равен N
@@ -245,6 +257,20 @@ template<> void Matrix<int>::randomize(unsigned int range) {
 
 
 template<> void Matrix<int>::print() {
+    for (int i = 0; i <N; ++i) {
+        cout << val[i] ;
+        cout << endl;
+    }
+}
+
+template<typename T>
+void Matrix<T>::SetSize(unsigned int s) {
+    N = s;
+}
+template<> void Matrix<long>::SetSize(unsigned int s) {
+    N = s;
+}
+template<> void Matrix<long>::print() {
     for (int i = 0; i <N; ++i) {
         cout << val[i] ;
         cout << endl;

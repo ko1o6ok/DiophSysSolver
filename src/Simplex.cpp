@@ -3,6 +3,7 @@
 #include <utility>
 #include "Simplex.h"
 #include "Graph.h"
+
 Vertex::Vertex(unsigned long ind) {
     index = ind;
 }
@@ -49,6 +50,20 @@ Simplex::Simplex() {
     dimension = 0;
 }
 
+vector<vector<unsigned long>> Simplex::get_border_words() {
+    auto v = make_word();
+    vector<vector<unsigned long>> res;
+    for (int i = 0; i < v.size(); ++i) {
+        vector<unsigned long> add;
+        for (int j = 0; j < v.size(); j++) {
+            if(j != i)
+                add.push_back(j);
+        }
+        res.push_back(add);
+    }
+    return res;
+}
+
 void SimplexTree::insert_simplex(Simplex s) {
     MyNode* current_node = root;
 
@@ -75,7 +90,7 @@ void SimplexTree::insert_simplex(Simplex s) {
 
 
 SimplexTree::SimplexTree() {
-    root = make_a_node(0);
+    root = make_a_node(-1);
     num_vertices = 0;
 }
 
@@ -110,7 +125,9 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double 
 
     // Индуктивно добавляем симплексы размерности <= max_dimension
     for (int k = 1; k < max_dimension+1; ++k) {
+
         auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
+
         if(!simplexes.empty()){
             vector<vector<unsigned long>> words; // Все "слова", соответствующие этим симплексам
             words.reserve(simplexes.size());
@@ -118,21 +135,31 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double 
                 words.push_back(simplex.make_word());
             }
             for (auto& word:words) {
+//                cout << "Current word is "<< endl;
+//                for(auto& t:word)
+//                    cout << t << ", ";
+//                cout << endl;
+//                if(word == vector<unsigned long>({1,2}))
+//                    int klmn = 5;
                 // Здесь важно учесть случай, когда буква в слове лишь одна!!
                 unsigned long last, prev_last;
-                if(k == 1){
+                if(k == 1)
+                {
                     last = word[0];
                     prev_last = last;
-                }
-                else{
+                }else{
+                    /*if(k-1>= word.size())
+                        continue;*/
                     last = word[k-1];
                     prev_last = word[k-2];
                 }
 
+
+
                 auto s = last + 1;
                 auto row = g.adj_matrix[prev_last];
                 bool pushed = false;
-                while (s < num_vertices){
+                while (s < g.num_vertices){
                     if(row[s] != 0){
                         word.push_back(s);
                         pushed = true;
@@ -140,8 +167,14 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double 
                     }
                     s++;
                 }
-                if(pushed)
+                if(pushed){
                     insert_simplex(word);
+                    //cout << "Inserting "<<endl;
+//                    for(auto& t:word)
+//                        cout << t << ", ";
+//                    cout << endl;
+                }
+
         }
             words.clear();
             simplexes.clear();
@@ -160,6 +193,129 @@ SimplexTree::SimplexTree(vector<vector<double>> &pnt_cld) {
 
 void SimplexTree::print() const {
     print_tree("",root);
+}
+
+Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
+    auto simplexes = all_simplexes_of_dim(dimension); // Вытащили все симплексы нужной размерности
+    if(simplexes.empty())
+        return Matrix<long int>(1);
+
+    unsigned int num_simplexes = simplexes.size();
+    if(dimension == 0)
+       return Matrix<long int>(num_simplexes);
+
+
+    TDynamicVector<TDynamicVector<long int>> res;
+
+//    cout << num_simplexes << endl;
+//    m.print();
+    vector<vector<unsigned long>> all_border_words;
+    int  j = 0;
+
+    bool is_first = true;
+
+    for(auto& simplex:simplexes){
+        // Применяем к нему оператор границы
+//        cout << "His vertices "<< endl;
+//        for(auto& v:simplex.vertices)
+//            cout << v.index << ", ";
+//        cout << endl;
+        auto his_words = simplex.get_border_words();
+        cout << "His words "<< endl;
+        for(auto& w:his_words){
+            for(auto& l:w)
+                cout << l << ", ";
+            cout << endl;
+        }
+
+        cout << endl;
+        // Для каждого отдельного слова проверяем - было ли оно уже в матрице
+        int coeff = -1;
+
+        for (auto& word:his_words) {
+
+            bool found = false;
+            int i = 0;
+            for (auto& w:all_border_words) {
+                if(w == word){
+                    found = true;
+                    auto& tmp = res[i];
+                    for (unsigned int k = 0; k < j-tmp.size()+1; ++k) {
+                        tmp.push(0);
+                    }
+                    cout << "THUHUFDH "<<tmp << endl;
+                    res[i][j] = coeff;
+
+//                    cout << "Pushing word "<<endl;
+//                    for(auto& t:word)
+//                        cout << t << ", ";
+//                    cout << endl;
+//                    cout << " With coeff: "<<coeff << endl;
+                    break;
+                }
+                i++;
+            }
+            if(!found){
+                all_border_words.push_back(word);
+
+                auto p = TDynamicVector<long>(num_simplexes);
+                if(is_first){
+                    res[0][j] = coeff;
+                    is_first = false;
+                }else{
+                    p[j] = coeff;
+                    //cout << p << endl;
+                    //m.print();
+                    //cout << endl;
+
+                    res.push(p);
+                    //m.print();
+//                    cout << endl;
+//                    cout << "Pushing word "<<endl;
+//                    for(auto& t:word)
+//                        cout << t << ", ";
+//                    cout << endl;
+//                    cout << " With coeff: "<<coeff << endl;
+                }
+
+            }
+
+            coeff = - coeff;
+        }
+        j++;
+    }
+
+    // Далее матрицу нужно дополнить до квадратной
+    unsigned int a = res.size();
+    unsigned int b = res[0].size();
+    cout << "HHHHHHHHHH" <<endl;
+    for (int i = 0; i < res.size(); ++i) {
+        cout << res[i] << endl;
+    }
+//    for (int i = 1; i < res.size(); ++i) {
+//        if(res[i].size() > b)
+//            b = res[i].size();
+//    }
+    if(a > b){
+        // Высота больше ширины
+        for (int i = 0; i < a; ++i) {
+            auto& v = res[i];// Строка
+            for (unsigned int k = v.size(); k < a; ++k) {
+                v.push(0);
+            }
+        }
+
+    }
+    if(a < b){
+        // Ширина больше высоты
+        auto p = TDynamicVector<long>(b);
+        for (int i = 0; i < b-a; ++i) {
+            res.push(p);
+        }
+    }
+    Matrix<long> m (res);
+    //m.val.pMem+=m.val[0].size();
+    return m;
 }
 
 void print_tree(const string& prefix,MyNode* rt) {

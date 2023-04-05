@@ -6,14 +6,20 @@
 using namespace std::chrono;
 
 int main() {
-    vector<double> a ={0.0,0.0};
-    vector<double> b ={1.0,0.0};
-    vector<double> c ={0.0,1.5};
+    vector<double> a ={0.0,0.0,0.2};
+    vector<double> b ={1.0,0.0,0.0};
+    vector<double> c ={1.5,0.0,0.0};
     vector<vector<double>> cloud = {a,b,c};
 
     SimplexTree my_tree(cloud);
-    my_tree.construct_from_point_cloud(3,1.2);
+    my_tree.construct_from_point_cloud(3,1.7);
     my_tree.print();
+    auto M = my_tree.border_operator_matrix(1);
+    M.print();
+    /*TDynamicVector<int> a({1,2,3});
+    cout << a << endl;
+    a.push(4);
+    cout << a;*/
 //    Graph g(cloud);
 //    g.connect_eps_neighbours(2.2);
 //    //g.connect_vertices(1,2);

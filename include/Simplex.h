@@ -29,6 +29,8 @@ public:
     Simplex(Simplex const &s); // Конструктор копирования
     void add_vertex(unsigned long ind); // Добавить новую вершину
     friend ostream& operator<<(ostream& stream,const Simplex& s); // Вывод
+
+    vector<vector<unsigned long>> get_border_words(); // Слова, соответствующие оператору границы ; - + - + ...
 };
 
 struct MyNode{
@@ -47,7 +49,7 @@ public:
     void insert_simplex(vector<unsigned long> v);
     vector<Simplex> all_simplexes_of_dim(int k) const; // Строит по дереву все симплексы размерности k
     void construct_from_point_cloud(unsigned long max_dimension,double eps); // Строит симплекс-дерево на основе графа ближайших соседей
-    Matrix<long int> border_operator_matrix(int dimension); // Матрица оператора границы
+    Matrix<long int> border_operator_matrix(int dimension) const; // Матрица оператора границы
 public:
     // Базовый конструктор
     SimplexTree();
