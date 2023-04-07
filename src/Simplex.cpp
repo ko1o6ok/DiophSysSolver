@@ -134,56 +134,39 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double 
         auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
 
         if(!simplexes.empty()){
-
-            vector<vector<unsigned long>> words; // Все "слова", соответствующие этим симплексам
-            words.reserve(simplexes.size());
-            for (auto& simplex:simplexes) {
-                words.push_back(simplex.make_word());
-            }
-            for (auto& word:words) {
-//                cout << "Current word is "<< endl;
-//                for(auto& t:word)
-//                    cout << t << ", ";
-//                cout << endl;
-//                if(word == vector<unsigned long>({1,2}))
-//                    int klmn = 5;
-                // Здесь важно учесть случай, когда буква в слове лишь одна!!
-                unsigned long last, prev_last;
-                if(k == 1)
-                {
-                    last = word[0];
-                    prev_last = last;
-                }else{
-                    /*if(k-1>= word.size())
-                        continue;*/
-                    last = word[k-1];
-                    prev_last = word[k-2];
-                }
-
-
-
-                auto s = last + 1;
-                auto row = g.adj_matrix[prev_last];
-                bool pushed = false;
-                while (s < g.num_vertices){
-                    if(row[s] != 0){
-                        word.push_back(s);
-                        pushed = true;
-                        break;
-                    }
-                    s++;
-                }
-                if(pushed){
-                    insert_simplex(word);
-                    //cout << "Inserting "<<endl;
-//                    for(auto& t:word)
+            for(auto& simplex:simplexes){
+                // Рассмотрим последовательность вершин данного симплекса (она упорядочена по возрастанию!)
+                auto his_word = simplex.make_word();
+                vector<unsigned long> N; // Вершины, которые будут добавлены
+                for (auto& u:his_word) {
+                    auto l_n = g.lower_neighbours(u); // Предшествующие вершины
+                    // Вставляем, сортируем и удаляем дубликаты
+                    N.insert(N.end(),l_n.begin(),l_n.end());
+                    sort(N.begin(),N.end());
+                    N.erase(unique(N.begin(),N.end()),N.end());
+//                    cout << "N is"<<endl;
+//                    for(auto& t:N)
 //                        cout << t << ", ";
 //                    cout << endl;
                 }
+                for(auto& vertex:N){
+                    // Наращиваем новый симплекс из предыдущего
+                    vector<unsigned long> ins({vertex});
+                    // Вставляем, сортируем и удаляем дубликаты
+                    ins.insert(ins.end(),his_word.begin(),his_word.end());
+                    sort(ins.begin(),ins.end());
+                    ins.erase(unique(ins.begin(),ins.end()),ins.end());
+                    if(ins.size()==k+1){
+//                        cout << "Inserting with k = "<< k <<endl;
+//                        cout << ins.size() << " < - "<<endl;
+//                        for(auto& t:ins)
+//                            cout << t << ", ";
+//                        cout << endl;
+                        insert_simplex(ins);
+                    }
 
-        }
-            words.clear();
-            simplexes.clear();
+                }
+            }
         }
         else{
             break;

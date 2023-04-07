@@ -88,7 +88,7 @@ void Graph::print_adj_matrix() {
 vector<unsigned long> Graph::lower_neighbours(unsigned long vertex) {
     vector<unsigned long> res;
     for(auto& v:vertices)
-        if(v < vertex)
+        if((v < vertex)&&(adj_matrix[v][vertex] != 0))
             res.push_back(v);
     return res;
 }
