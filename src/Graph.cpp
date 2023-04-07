@@ -56,7 +56,8 @@ double euclidean_distance(vector<double> point_1, vector<double> point_2){
 void Graph::connect_eps_neighbours(double eps) {
 
     // Проходим по облаку точек
-    for (int i = 0; i < num_vertices; ++i)
+    for (int i = 0; i < num_vertices; ++i){
+        vertices.push_back(i);
         for (int j = i+1; j < num_vertices; ++j) {
             auto dist = euclidean_distance(point_cloud[i],point_cloud[j]);
             //cout << "I've computed the distance "<< dist << endl;
@@ -66,6 +67,7 @@ void Graph::connect_eps_neighbours(double eps) {
             }
 
         }
+    }
 }
 
 void Graph::disconnect_vertices(unsigned long vert1, unsigned long vert2) {
@@ -81,4 +83,12 @@ void Graph::print_adj_matrix() {
             cout<< adj_matrix[i][j] << ", ";
         cout << endl;
     }
+}
+
+vector<unsigned long> Graph::lower_neighbours(unsigned long vertex) {
+    vector<unsigned long> res;
+    for(auto& v:vertices)
+        if(v < vertex)
+            res.push_back(v);
+    return res;
 }

@@ -17,6 +17,7 @@ public:
     explicit Graph(const vector<vector<double>>& pnt_cld); // Создание ПУСТОГО графа из облака точек
     void connect_eps_neighbours(double eps); // Соединить только вершины с ЕВКЛИДОВЫМ расстоянием < eps
     void print_adj_matrix(); // Вывод матрицы смежности
+    vector<unsigned long> lower_neighbours(unsigned long vertex); // Все вершины, предшествующие данной
     ~Graph(); // Деструктор
 
 };

@@ -262,7 +262,12 @@ template<> void Matrix<int>::print() {
         cout << endl;
     }
 }
-
+//template<> void Matrix<short>::print() {
+//    for (int i = 0; i <N; ++i) {
+//        cout << val[i] ;
+//        cout << endl;
+//    }
+//}
 template<typename T>
 void Matrix<T>::SetSize(unsigned int s) {
     N = s;

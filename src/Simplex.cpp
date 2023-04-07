@@ -116,6 +116,11 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double 
     // Создали граф ближайших соседей
     Graph g(point_cloud);
     g.connect_eps_neighbours(eps);
+
+//    for(auto& row:g.vertices){
+//            cout << row << ", ";
+//
+//    }cout << endl;
     // На его основе создаём комплекс Вьеториса-Рипса:
 
     // Сначала заносим просто все точки
@@ -129,6 +134,7 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double 
         auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
 
         if(!simplexes.empty()){
+
             vector<vector<unsigned long>> words; // Все "слова", соответствующие этим симплексам
             words.reserve(simplexes.size());
             for (auto& simplex:simplexes) {
@@ -179,7 +185,9 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double 
             words.clear();
             simplexes.clear();
         }
-
+        else{
+            break;
+        }
     }
 
 
