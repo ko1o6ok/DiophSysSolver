@@ -18,7 +18,7 @@ int main() {
 //    for(auto& s:my_tree.all_simplexes_of_dim(1)){
 //        cout << s << endl;
 //    }
-    auto M = my_tree.border_operator_matrix(1);
+    auto M = my_tree.border_operator_matrix(2);
     M.print();
     /*TDynamicVector<int> a({1,2,3});
     cout << a << endl;
