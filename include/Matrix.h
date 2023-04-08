@@ -234,6 +234,8 @@ private:
 public:
     TDynamicVector<TDynamicVector<T>> val;
     unsigned int GetSize() const;
+    long nullity() const; // Для приведённой матрицы!!!
+    long rank() const; // Для приведённой матрицы!!!
     void SetSize(unsigned int s);
     // Операции выбраны исходя из необходимости
     explicit Matrix(unsigned int n); // n * n zero matrix
@@ -258,7 +260,8 @@ int modulo_inverse(int a, int rem); // Обратный по модулю
 int chinese_remainder_theorem(const int* numbers, const int* remainders, int n); // Мин. положит. решение китайской теоремы об остатках
 
 pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A); //  [ THE BEST SO FAR ]
-void compute_SNF(Matrix<int>& A);
+void compute_SNF(Matrix<long>& A);
+Matrix<long> to_SNF(Matrix<long>& A);
 pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<int>& b,int p); // Ax = b mod p
 // В перспективе будут возвращаться две матрицы: U и R. U A R = S, S - смитова нормальная форма
 vector<int> SieveOfEratosthenes(int n); // Возвращает вектор простых чисел, меньших n

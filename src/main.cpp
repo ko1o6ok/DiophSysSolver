@@ -20,6 +20,11 @@ int main() {
 //    }
     auto M = my_tree.border_operator_matrix(2);
     M.print();
+    cout << "-----------------------"<<endl;
+    to_SNF(M).print();
+    cout << "Betti numbers :"<<endl;
+    for(auto& b_n:my_tree.betti_numbers())
+        cout << b_n << endl;
     /*TDynamicVector<int> a({1,2,3});
     cout << a << endl;
     a.push(4);

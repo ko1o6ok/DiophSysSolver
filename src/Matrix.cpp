@@ -272,6 +272,21 @@ template<typename T>
 void Matrix<T>::SetSize(unsigned int s) {
     N = s;
 }
+
+template<>
+long Matrix<long>::nullity() const {
+    int S = 0;
+    for (int i = 0; i < N; ++i)
+        if(val[i][i] == 0)
+            S++;
+    return S;
+}
+
+template<>
+long Matrix<long>::rank() const {
+    return N-nullity();
+}
+
 template<> void Matrix<long>::SetSize(unsigned int s) {
     N = s;
 }
@@ -310,7 +325,7 @@ vector<int> indexes_wrong_part(Matrix<int>& A){
 }
 
 
-void compute_SNF(Matrix<int>& A) {
+void compute_SNF(Matrix<long>& A) {
     unsigned int n = A.GetSize();
 
     // (A | U)
@@ -343,7 +358,7 @@ void compute_SNF(Matrix<int>& A) {
         auto A_T = A.transpose(); // Чтобы компу было удобнее ходить в память
 
 //        TDynamicVector<int> col = A_T[k];// Берём k-й столбец
-        TDynamicVector<int> col(n);
+        TDynamicVector<long> col(n);
         for (int p = 0; p < n; p++) {
             col[p] = A[p][k];
         }
@@ -441,7 +456,7 @@ void compute_SNF(Matrix<int>& A) {
         // Проходим по k-й строке
         auto T = A.transpose();
         for (int i = k + 1; i < n; i++) {
-            int &t = A[k][i];
+            long &t = A[k][i];
             if (abs(el) <= abs(t)) {
                 T[i] = T[i] - T[k] * floor(t/el);
                 //t = t % el;
@@ -454,12 +469,18 @@ void compute_SNF(Matrix<int>& A) {
         int el = A[k][k];
         // Проходим по k-й строке
         for (int i = k + 1; i < n; i++) {
-            int &t = A[k][i];
+            long &t = A[k][i];
             if (t != 0)
                 if (abs(el) <= abs(t))
                     t = t % el;
         }
     }
+}
+Matrix<long> to_SNF(Matrix<long>& A){
+    compute_SNF(A);
+    auto T = A.transpose();
+    compute_SNF(T);
+    return T;
 }
 pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A) {
     auto temp = A;

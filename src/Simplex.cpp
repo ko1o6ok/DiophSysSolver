@@ -57,7 +57,7 @@ vector<vector<unsigned long>> Simplex::get_border_words() {
         vector<unsigned long> add;
         for (int j = 0; j < v.size(); j++) {
             if(j != i)
-                add.push_back(j);
+                add.push_back(v[j]);
         }
         res.push_back(add);
     }
@@ -112,9 +112,10 @@ vector<Simplex> SimplexTree::all_simplexes_of_dim(int k) const {
     return simplexes;
 }
 
-void SimplexTree::construct_from_point_cloud(unsigned long max_dimension,double eps) {
+void SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
     // Создали граф ближайших соседей
     Graph g(point_cloud);
+    max_dimension = max_dim;
     g.connect_eps_neighbours(eps);
 
 //    for(auto& row:g.vertices){
@@ -194,8 +195,14 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
         return Matrix<long int>(1);
 
     unsigned int num_simplexes = simplexes.size();
-    if(dimension == 0)
-       return Matrix<long int>(num_simplexes);
+    if(dimension == 0){
+        auto M = Matrix<long int>(num_simplexes);
+        for (int i = 0; i < num_simplexes; ++i) {
+            M[0][i] = 1;
+        }
+        return M;
+    }
+
 
 
     TDynamicVector<TDynamicVector<long int>> res;
@@ -216,7 +223,8 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
         auto his_words = simplex.get_border_words();
 
         //TDynamicVector<long> ins(num_simplexes); // Каждый вставляемый вектор имеет одинаковую длину
-
+//        cout << "Initial simplex "<<endl;
+//        cout << simplex << endl;
 //        cout << "His words "<< endl;
 //        for(auto& w:his_words){
 //            for(auto& l:w)
@@ -233,6 +241,13 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
             bool found = false;
             int i = 0;
             for (auto& w:all_border_words) {
+//                cout << "Compared :"<<endl;
+//                for(auto& t:w)
+//                    cout << t << ", ";
+//                cout << endl<< "And: ";
+//                for(auto& z:word)
+//                    cout << z << ", ";
+//                cout << endl << "result is "<< (w == word) << endl;
                 if(w == word){
                     found = true;
                     res[i][j] = coeff;
@@ -309,6 +324,28 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
     //m.val.pMem+=m.val[0].size();
     return m;
 }
+
+vector<int> SimplexTree::betti_numbers() const {
+    vector<int> res;
+    auto prev = border_operator_matrix(0);
+    to_SNF(prev);
+    for (int i = 1; i < max_dimension+1; ++i) {
+        // Вычисляем матрицу оператора i-мерной границы
+        auto M = border_operator_matrix(i);
+        to_SNF(M); // Приводим её к смитовой нормальной форме
+        cout << "Comparing this "<<endl;
+        M.print();
+        cout << endl << "AND that "<<endl;
+        prev.print();
+        cout << endl;
+        res.push_back(prev.nullity() - M.rank());
+        prev = M;
+
+    }
+    return res;
+}
+
+
 
 void print_tree(const string& prefix,MyNode* rt) {
     if(rt != nullptr){
