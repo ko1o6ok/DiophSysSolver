@@ -50,6 +50,7 @@ public:
     void insert_simplex(vector<unsigned long> v);
     vector<Simplex> all_simplexes_of_dim(int k) const; // Строит по дереву все симплексы размерности k
     void construct_from_point_cloud(unsigned long max_dimension,double eps); // Строит симплекс-дерево на основе графа ближайших соседей
+    Matrix<long int> border_operator_matrix(int dimension,int& adds,bool& no_simplexes) const; // Матрица оператора границы
     Matrix<long int> border_operator_matrix(int dimension) const; // Матрица оператора границы
     vector<int> betti_numbers() const; // Выписать числа Бэтти данного комплекса
 

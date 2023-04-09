@@ -128,7 +128,8 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
     for (int i = 0; i < num_vertices; ++i) {
         add_child(root,i);
     }
-
+    if(max_dimension == 0)
+        return;
     // Индуктивно добавляем симплексы размерности <= max_dimension
     for (int k = 1; k < max_dimension+1; ++k) {
 
@@ -187,6 +188,160 @@ void SimplexTree::print() const {
     print_tree("",root);
 }
 
+Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,bool& no_simplexes) const {
+    adds = 0;
+    auto simplexes = all_simplexes_of_dim(dimension); // Вытащили все симплексы нужной размерности
+    //cout << simplexes.size() << endl;
+    if(simplexes.empty()){
+        no_simplexes = true;
+        return Matrix<long int>(1);
+    }
+
+
+    unsigned int num_simplexes = simplexes.size();
+    if(dimension == 0){
+        auto M = Matrix<long int>(num_simplexes);
+        for (int i = 0; i < num_simplexes; ++i) {
+            M[0][i] = 0;
+        }
+        return M;
+    }
+
+
+
+    TDynamicVector<TDynamicVector<long int>> res;
+
+
+
+//    cout << num_simplexes << endl;
+//    m.print();
+    vector<vector<unsigned long>> all_border_words;
+    int  j = 0;
+
+    bool is_first = true;
+
+    for(auto& simplex:simplexes){
+        // Применяем к нему оператор границы
+//        cout << "His vertices "<< endl;
+//        for(auto& v:simplex.vertices)
+//            cout << v.index << ", ";
+//        cout << endl;
+        auto his_words = simplex.get_border_words();
+
+        //TDynamicVector<long> ins(num_simplexes); // Каждый вставляемый вектор имеет одинаковую длину
+//        cout << "Initial simplex "<<endl;
+//        cout << simplex << endl;
+//        cout << "His words "<< endl;
+//        for(auto& w:his_words){
+//            for(auto& l:w)
+//                cout << l << ", ";
+//            cout << endl;
+//        }
+//
+//        cout << endl;
+        // Для каждого отдельного слова проверяем - было ли оно уже в матрице
+        //int coeff = 1;
+
+        for (auto& word:his_words) {
+            //cout << "COEFF "<< coeff<<endl;
+            bool found = false;
+            int i = 0;
+            for (auto& w:all_border_words) {
+//                cout << "Compared :"<<endl;
+//                for(auto& t:w)
+//                    cout << t << ", ";
+//                cout << endl<< "And: ";
+//                for(auto& z:word)
+//                    cout << z << ", ";
+//                cout << endl << "result is "<< (w == word) << endl;
+                if(w == word){
+                    found = true;
+                    res[i][j] = 1;
+
+                    break;
+                }
+                i++;
+            }
+            if(!found){
+                all_border_words.push_back(word);
+
+                auto p = TDynamicVector<long>(num_simplexes);
+                if(is_first){
+                    res[0] = p;
+                    res[0][j] = 1;
+                    is_first = false;
+                }else{
+                    p[j] = 1;
+                    //cout << p << endl;
+                    //m.print();
+                    //cout << endl;
+
+                    res.push(p);
+//                    cout << "MMMMM" <<endl;
+//                    for (int m = 0; m < res.size(); ++m) {
+//                        cout << res[m] << endl;
+//                    }
+                    //m.print();
+//                    cout << endl;
+//                    cout << "Pushing word "<<endl;
+//                    for(auto& t:word)
+//                        cout << t << ", ";
+//                    cout << endl;
+//                    cout << " With coeff: "<<coeff << endl;
+                }
+
+            }
+            //coeff = - coeff;
+        }
+        //res.push(ins);
+        j++;
+    }
+
+    // Далее матрицу нужно дополнить до квадратной
+    unsigned int a = res.size();
+    unsigned int b = res[0].size();
+//    cout << "HHHHHHHHHH" <<endl;
+//    for (int i = 0; i < res.size(); ++i) {
+//        cout << res[i] << endl;
+//    }
+//    cout << "HHHHHHHHHH" <<endl;
+//    for (int i = 1; i < res.size(); ++i) {
+//        if(res[i].size() > b)
+//            b = res[i].size();
+//    }
+    if(a > b){
+        adds+=a-b;
+        // Высота больше ширины
+        for (int i = 0; i < a; ++i) {
+            auto& v = res[i];// Строка
+            for (unsigned int k = v.size(); k < a; ++k) {
+                v.push(0);
+            }
+        }
+
+    }
+    if(a < b){
+        // Ширина больше высоты
+        auto p = TDynamicVector<long>(b);
+        for (int i = 0; i < b-a; ++i) {
+            res.push(p);
+        }
+    }
+    Matrix<long> m (res);
+    auto m_t = m.transpose();
+    for (int i = 0; i < m.GetSize(); ++i) {
+        int counter = 1;
+        auto& row = m_t[i];
+        for (int k = 0; k < m.GetSize(); ++k) {
+            if(row[k] == 1){
+                row[k] = counter;
+                counter = -counter;
+            }
+        }
+    }
+    //m.val.pMem+=m.val[0].size();
+    return m_t.transpose();
+}
 Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
 
     auto simplexes = all_simplexes_of_dim(dimension); // Вытащили все симплексы нужной размерности
@@ -198,7 +353,7 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
     if(dimension == 0){
         auto M = Matrix<long int>(num_simplexes);
         for (int i = 0; i < num_simplexes; ++i) {
-            M[0][i] = 1;
+            M[0][i] = 0;
         }
         return M;
     }
@@ -234,7 +389,7 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
 //
 //        cout << endl;
         // Для каждого отдельного слова проверяем - было ли оно уже в матрице
-        int coeff = -1;
+        int coeff = 1;
 
         for (auto& word:his_words) {
 
@@ -251,6 +406,7 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
                 if(w == word){
                     found = true;
                     res[i][j] = coeff;
+
                     break;
                 }
                 i++;
@@ -284,7 +440,6 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
                 }
 
             }
-
             coeff = - coeff;
         }
         //res.push(ins);
@@ -324,22 +479,43 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
     //m.val.pMem+=m.val[0].size();
     return m;
 }
-
 vector<int> SimplexTree::betti_numbers() const {
     vector<int> res;
     auto prev = border_operator_matrix(0);
     to_SNF(prev);
-    for (int i = 1; i < max_dimension+1; ++i) {
+    int adds;
+    int prev_adds = 0;
+    bool no_simplexes = false;
+    bool prev_no_simplexes = false;
+    //cout << "MAX DIM IS "<<max_dimension <<endl;
+    for (int i = 1; i < max_dimension+2; ++i) {
         // Вычисляем матрицу оператора i-мерной границы
-        auto M = border_operator_matrix(i);
+
+        auto M = border_operator_matrix(i,adds,no_simplexes);
+
+//        cout << "Was this matrix "<<endl;
+//        M.print();
         to_SNF(M); // Приводим её к смитовой нормальной форме
-        cout << "Comparing this "<<endl;
-        M.print();
-        cout << endl << "AND that "<<endl;
-        prev.print();
-        cout << endl;
-        res.push_back(prev.nullity() - M.rank());
+//        cout << "Current matrix "<<endl;
+//        M.print();
+//        cout << endl << "Previous matrix "<<endl;
+//        prev.print();
+//        cout << endl;
+//        cout << "Her number of adds "<<prev_adds<<endl;
+        if(no_simplexes){
+            //cout << "FOUND NO SIMPLEXES OF DIM "<<i<<endl;
+            if(prev_no_simplexes)
+                res.push_back(0);
+            else{
+                res.push_back(prev.nullity()-prev_adds);
+            }
+        }else{
+            res.push_back(prev.nullity()-prev_adds - M.rank());
+        }
+
         prev = M;
+        prev_adds = adds;
+        prev_no_simplexes = no_simplexes;
 
     }
     return res;

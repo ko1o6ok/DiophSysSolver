@@ -13,15 +13,19 @@ int main() {
     vector<vector<double>> cloud = {a,b,c};
 
     SimplexTree my_tree(cloud);
-    my_tree.construct_from_point_cloud(2,1.7);
+//    my_tree.insert_simplex({0,1,2});
+//    my_tree.insert_simplex({0,2});
+//    my_tree.insert_simplex({1,2});
+//    my_tree.insert_simplex({2});
+    my_tree.construct_from_point_cloud(1,1.7);
     my_tree.print();
 //    for(auto& s:my_tree.all_simplexes_of_dim(1)){
 //        cout << s << endl;
 //    }
-    auto M = my_tree.border_operator_matrix(2);
-    M.print();
-    cout << "-----------------------"<<endl;
-    to_SNF(M).print();
+    //auto M = my_tree.border_operator_matrix(2);
+    //M.print();
+    //cout << "-----------------------"<<endl;
+    //to_SNF(M).print();
     cout << "Betti numbers :"<<endl;
     for(auto& b_n:my_tree.betti_numbers())
         cout << b_n << endl;
