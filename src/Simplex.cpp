@@ -3,7 +3,8 @@
 #include <utility>
 #include "Simplex.h"
 #include "Graph.h"
-
+#include <fstream>
+#include <sstream>
 Vertex::Vertex(unsigned long ind) {
     index = ind;
 }
@@ -112,7 +113,8 @@ vector<Simplex> SimplexTree::all_simplexes_of_dim(int k) const {
     return simplexes;
 }
 
-void SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
+Graph SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
+    //root->children.clear();
     // Создали граф ближайших соседей
     Graph g(point_cloud);
     max_dimension = max_dim;
@@ -129,7 +131,7 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
         add_child(root,i);
     }
     if(max_dimension == 0)
-        return;
+        return g;
     // Индуктивно добавляем симплексы размерности <= max_dimension
     for (int k = 1; k < max_dimension+1; ++k) {
 
@@ -175,7 +177,7 @@ void SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
         }
     }
 
-
+    return g;
 }
 
 SimplexTree::SimplexTree(vector<vector<double>> &pnt_cld) {
@@ -200,6 +202,7 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,boo
 
     unsigned int num_simplexes = simplexes.size();
     if(dimension == 0){
+       // cout << "FOUND "<<num_simplexes <<" OF DIM 0"<<endl;
         auto M = Matrix<long int>(num_simplexes);
         for (int i = 0; i < num_simplexes; ++i) {
             M[0][i] = 0;
@@ -487,8 +490,9 @@ vector<int> SimplexTree::betti_numbers() const {
     int prev_adds = 0;
     bool no_simplexes = false;
     bool prev_no_simplexes = false;
+    unsigned long pnt_cld_sz = point_cloud.size();
     //cout << "MAX DIM IS "<<max_dimension <<endl;
-    for (int i = 1; i < max_dimension+2; ++i) {
+    for (int i = 1; i < min(max_dimension,pnt_cld_sz)+2; ++i) {
         // Вычисляем матрицу оператора i-мерной границы
 
         auto M = border_operator_matrix(i,adds,no_simplexes);
@@ -502,17 +506,27 @@ vector<int> SimplexTree::betti_numbers() const {
 //        prev.print();
 //        cout << endl;
 //        cout << "Her number of adds "<<prev_adds<<endl;
+        int inserted_betti_number;
         if(no_simplexes){
             //cout << "FOUND NO SIMPLEXES OF DIM "<<i<<endl;
             if(prev_no_simplexes)
-                res.push_back(0);
+                inserted_betti_number = 0;
             else{
-                res.push_back(prev.nullity()-prev_adds);
+                inserted_betti_number = prev.nullity()-prev_adds;
             }
         }else{
-            res.push_back(prev.nullity()-prev_adds - M.rank());
+            inserted_betti_number = prev.nullity()-prev_adds - M.rank();
         }
-
+//        if(inserted_betti_number == 2){
+//
+//        }
+        // BUG fix
+//        if(prev.nullity() == prev_adds)
+//            inserted_betti_number = 0;
+//        cout << "Prev nullity is "<<prev.nullity()<<endl;
+//        cout << "Current rank is "<<M.rank()<<endl;
+//        cout << "Inserting Betti number "<<inserted_betti_number <<endl;
+        res.push_back(inserted_betti_number);
         prev = M;
         prev_adds = adds;
         prev_no_simplexes = no_simplexes;
@@ -562,4 +576,52 @@ MyNode* add_child(MyNode *node, unsigned long last_ind) {
     auto* my_node = make_a_node(last_ind);
     node->children.push_back(my_node);
     return my_node;
+}
+
+void write_betti_num_to_file(double max_eps,double step,const string& filename,vector<vector<double>> pnt_cld,const int max_dim){
+    ofstream out;
+    out.open(filename);
+    double eps = 0.0;
+
+    while(eps < max_eps){
+        SimplexTree tree(pnt_cld);
+        Graph gr = tree.construct_from_point_cloud(max_dim,eps);
+        auto b_n = tree.betti_numbers();
+//        cout << "Current eps is "<<eps << endl;
+//        tree.print();cout <<endl;
+//        gr.print_adj_matrix();
+//        cout << endl;
+
+            //cout <<
+//        if(b_n[0] == 2){
+
+//            break;
+//        }
+        out << eps << " - - > ";
+        for(auto& t:b_n)
+            out << t << " ";
+        out << endl;
+        //break;
+        eps += step;
+    }
+}
+vector<vector<double>> read_to_pnt_cld(const string& filename){
+    fstream in;
+    in.open(filename,ios::in);
+
+    vector<vector<double>> res;
+
+    if(in.is_open()){
+        string tp;
+        while(getline(in,tp)){
+            vector<double> add;
+            stringstream ss(tp);
+            string word;
+            while(ss >> word)
+                add.push_back(atof(word.c_str()));
+            res.push_back(add);
+        }
+        in.close();
+    }
+    return res;
 }

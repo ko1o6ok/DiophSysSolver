@@ -6,19 +6,28 @@
 using namespace std::chrono;
 
 int main() {
-    vector<double> a ={0.0,0.0,0.2};
-    vector<double> b ={1.0,0.0,0.0};
-    vector<double> c ={1.5,0.0,0.0};
-    //vector<double> d = {0.0,2.0,0.0};
-    vector<vector<double>> cloud = {a,b,c};
-
-    SimplexTree my_tree(cloud);
-//    my_tree.insert_simplex({0,1,2});
-//    my_tree.insert_simplex({0,2});
-//    my_tree.insert_simplex({1,2});
-//    my_tree.insert_simplex({2});
-    my_tree.construct_from_point_cloud(1,1.7);
-    my_tree.print();
+    auto pnt_cld = read_to_pnt_cld(R"(C:\C++_proj\FastHNF\data.txt)");
+//    double eps = 6.7;
+//    SimplexTree tree(pnt_cld);
+//    Graph gr = tree.construct_from_point_cloud(5,eps);
+//    tree.print();
+//    cout << endl;
+//    gr.print_adj_matrix();
+//    auto b_n = tree.betti_numbers();
+    write_betti_num_to_file(20.0,0.1,R"(C:\C++_proj\FastHNF\res.txt)",pnt_cld,3);
+//    vector<double> a ={0.0,0.0,0.2};
+//    vector<double> b ={1.0,0.0,0.0};
+//    vector<double> c ={1.5,0.0,0.0};
+//    //vector<double> d = {0.0,2.0,0.0};
+//    vector<vector<double>> cloud = {a,b,c};
+//
+//    SimplexTree my_tree(cloud);
+////    my_tree.insert_simplex({0,1,2});
+////    my_tree.insert_simplex({0,2});
+////    my_tree.insert_simplex({1,2});
+////    my_tree.insert_simplex({2});
+//    my_tree.construct_from_point_cloud(1,1.7);
+//    my_tree.print();
 //    for(auto& s:my_tree.all_simplexes_of_dim(1)){
 //        cout << s << endl;
 //    }
@@ -26,9 +35,9 @@ int main() {
     //M.print();
     //cout << "-----------------------"<<endl;
     //to_SNF(M).print();
-    cout << "Betti numbers :"<<endl;
-    for(auto& b_n:my_tree.betti_numbers())
-        cout << b_n << endl;
+//    cout << "Betti numbers :"<<endl;
+//    for(auto& b_n:my_tree.betti_numbers())
+//        cout << b_n << endl;
     /*TDynamicVector<int> a({1,2,3});
     cout << a << endl;
     a.push(4);
