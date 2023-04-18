@@ -467,20 +467,32 @@ void compute_SNF(Matrix<long>& A) {
     // Финальная полировка
     for (int k = 0; k < n; k++) {
         int el = A[k][k];
-        // Проходим по k-й строке
-        for (int i = k + 1; i < n; i++) {
-            long &t = A[k][i];
-            if (t != 0)
-                if (abs(el) <= abs(t))
-                    t = t % el;
+        if(el != 0){
+            // Проходим по k-й строке
+            for (int i = k + 1; i < n; i++) {
+                long &t = A[k][i];
+                if (t != 0)
+                    if (abs(el) <= abs(t))
+                        t = t % el;
+            }
         }
+
     }
 }
 Matrix<long> to_SNF(Matrix<long>& A){
     compute_SNF(A);
-    auto T = A.transpose();
-    compute_SNF(T);
-    return T;
+    //compute_SNF(A);
+//    cout << "Computed SNF of "<<endl;
+//    A.print();
+//    cout << endl;
+    A =  A.transpose();
+    //A.print();
+    //cout << endl;
+    compute_SNF(A);
+    //A.print();
+    //cout << endl;
+    //compute_SNF(T);
+    return A;
 }
 pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A) {
     auto temp = A;

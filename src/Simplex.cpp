@@ -119,7 +119,9 @@ Graph SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) 
     Graph g(point_cloud);
     max_dimension = max_dim;
     g.connect_eps_neighbours(eps);
-
+//    cout << "HERE !!!"<<endl;
+//    g.print_adj_matrix();
+//    cout << "HERE !!!"<<endl;
 //    for(auto& row:g.vertices){
 //            cout << row << ", ";
 //
@@ -144,6 +146,14 @@ Graph SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) 
                 vector<unsigned long> N; // Вершины, которые будут добавлены
                 for (auto& u:his_word) {
                     auto l_n = g.lower_neighbours(u); // Предшествующие вершины
+//                    if(k == 2){
+//                        cout << "SEARCHING LOWER NEIGHBOURS of "<<u << endl;
+//
+//                        for(auto& t:l_n)
+//                            cout << t << ", ";
+//                        cout << endl << "------------------"<<endl;
+//                    }
+
                     // Вставляем, сортируем и удаляем дубликаты
                     N.insert(N.end(),l_n.begin(),l_n.end());
                     sort(N.begin(),N.end());
@@ -157,15 +167,27 @@ Graph SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) 
                     // Наращиваем новый симплекс из предыдущего
                     vector<unsigned long> ins({vertex});
                     // Вставляем, сортируем и удаляем дубликаты
+                    bool not_connected = false;
+                    for (auto& his_vert:his_word) {
+                        if(g.adj_matrix[vertex][his_vert] == 0){
+                            not_connected = true;
+                            break;
+                        }
+                    }
+                    if(not_connected)
+                        continue;
                     ins.insert(ins.end(),his_word.begin(),his_word.end());
                     sort(ins.begin(),ins.end());
                     ins.erase(unique(ins.begin(),ins.end()),ins.end());
                     if(ins.size()==k+1){
-//                        cout << "Inserting with k = "<< k <<endl;
-//                        cout << ins.size() << " < - "<<endl;
-//                        for(auto& t:ins)
-//                            cout << t << ", ";
-//                        cout << endl;
+//                        if( k == 2){
+//                            cout << "Inserting with k = "<< k <<endl;
+//                            cout << ins.size() << " < - "<<endl;
+//                            for(auto& t:ins)
+//                                cout << t << ", ";
+//                            cout << endl;
+//                        }
+
                         insert_simplex(ins);
                     }
 
@@ -193,6 +215,16 @@ void SimplexTree::print() const {
 Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,bool& no_simplexes) const {
     adds = 0;
     auto simplexes = all_simplexes_of_dim(dimension); // Вытащили все симплексы нужной размерности
+
+//    if(dimension == 2){
+//        cout << "SIMPLEXES" << endl;
+//        cout << "-----------------------"<< endl;
+//        for (auto& simplex:simplexes) {
+//            cout << simplex <<endl;
+//        }
+//        cout << "-----------------------"<< endl;
+//    }
+
     //cout << simplexes.size() << endl;
     if(simplexes.empty()){
         no_simplexes = true;
@@ -243,7 +275,7 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,boo
 //
 //        cout << endl;
         // Для каждого отдельного слова проверяем - было ли оно уже в матрице
-        //int coeff = 1;
+        int coeff = 1;
 
         for (auto& word:his_words) {
             //cout << "COEFF "<< coeff<<endl;
@@ -259,7 +291,7 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,boo
 //                cout << endl << "result is "<< (w == word) << endl;
                 if(w == word){
                     found = true;
-                    res[i][j] = 1;
+                    res[i][j] = coeff;
 
                     break;
                 }
@@ -271,10 +303,10 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,boo
                 auto p = TDynamicVector<long>(num_simplexes);
                 if(is_first){
                     res[0] = p;
-                    res[0][j] = 1;
+                    res[0][j] = coeff;
                     is_first = false;
                 }else{
-                    p[j] = 1;
+                    p[j] = coeff;
                     //cout << p << endl;
                     //m.print();
                     //cout << endl;
@@ -294,7 +326,7 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,boo
                 }
 
             }
-            //coeff = - coeff;
+            coeff = - coeff;
         }
         //res.push(ins);
         j++;
@@ -331,19 +363,19 @@ Matrix<long int> SimplexTree::border_operator_matrix(int dimension,int& adds,boo
         }
     }
     Matrix<long> m (res);
-    auto m_t = m.transpose();
-    for (int i = 0; i < m.GetSize(); ++i) {
-        int counter = 1;
-        auto& row = m_t[i];
-        for (int k = 0; k < m.GetSize(); ++k) {
-            if(row[k] == 1){
-                row[k] = counter;
-                counter = -counter;
-            }
-        }
-    }
+//    auto m_t = m.transpose();
+//    for (int i = 0; i < m.GetSize(); ++i) {
+//        int counter = 1;
+//        auto& row = m_t[i];
+//        for (int k = 0; k < m.GetSize(); ++k) {
+//            if(row[k] == 1){
+//                row[k] = counter;
+//                counter = -counter;
+//            }
+//        }
+//    }
     //m.val.pMem+=m.val[0].size();
-    return m_t.transpose();
+    return m;
 }
 Matrix<long int> SimplexTree::border_operator_matrix(int dimension) const {
 
@@ -494,18 +526,19 @@ vector<int> SimplexTree::betti_numbers() const {
     //cout << "MAX DIM IS "<<max_dimension <<endl;
     for (int i = 1; i < min(max_dimension,pnt_cld_sz)+2; ++i) {
         // Вычисляем матрицу оператора i-мерной границы
-
+        //cout << i << " - th border matrix"<<endl;
         auto M = border_operator_matrix(i,adds,no_simplexes);
 
-//        cout << "Was this matrix "<<endl;
-//        M.print();
+
+        //cout << "Was this matrix "<<endl;
+        //M.print();
         to_SNF(M); // Приводим её к смитовой нормальной форме
-//        cout << "Current matrix "<<endl;
-//        M.print();
-//        cout << endl << "Previous matrix "<<endl;
-//        prev.print();
-//        cout << endl;
-//        cout << "Her number of adds "<<prev_adds<<endl;
+        //cout << "Current matrix "<<endl;
+        //M.print();
+        //cout << endl << "Previous matrix "<<endl;
+        //prev.print();
+        //cout << endl;
+        //cout << "Her number of adds "<<prev_adds<<endl;
         int inserted_betti_number;
         if(no_simplexes){
             //cout << "FOUND NO SIMPLEXES OF DIM "<<i<<endl;
@@ -520,9 +553,7 @@ vector<int> SimplexTree::betti_numbers() const {
 //        if(inserted_betti_number == 2){
 //
 //        }
-        // BUG fix
-//        if(prev.nullity() == prev_adds)
-//            inserted_betti_number = 0;
+
 //        cout << "Prev nullity is "<<prev.nullity()<<endl;
 //        cout << "Current rank is "<<M.rank()<<endl;
 //        cout << "Inserting Betti number "<<inserted_betti_number <<endl;
@@ -531,6 +562,8 @@ vector<int> SimplexTree::betti_numbers() const {
         prev_adds = adds;
         prev_no_simplexes = no_simplexes;
 
+//        if(i == 2)
+//            break;
     }
     return res;
 }
@@ -587,17 +620,17 @@ void write_betti_num_to_file(double max_eps,double step,const string& filename,v
         SimplexTree tree(pnt_cld);
         Graph gr = tree.construct_from_point_cloud(max_dim,eps);
         auto b_n = tree.betti_numbers();
-//        cout << "Current eps is "<<eps << endl;
-//        tree.print();cout <<endl;
-//        gr.print_adj_matrix();
-//        cout << endl;
+        //cout << "Current eps is "<<eps << endl;
+        //tree.print();cout <<endl;
+        //gr.print_adj_matrix();
+        //cout << endl;
 
             //cout <<
 //        if(b_n[0] == 2){
 
 //            break;
 //        }
-        out << eps << " - - > ";
+        out << eps << " ";
         for(auto& t:b_n)
             out << t << " ";
         out << endl;

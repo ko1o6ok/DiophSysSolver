@@ -7,6 +7,11 @@ using namespace std::chrono;
 
 int main() {
     auto pnt_cld = read_to_pnt_cld(R"(C:\C++_proj\FastHNF\data.txt)");
+//    for (auto& v:pnt_cld) {
+//        for(auto& t:v)
+//            cout << t<<", ";
+//        cout << endl;
+//    }
 //    double eps = 6.7;
 //    SimplexTree tree(pnt_cld);
 //    Graph gr = tree.construct_from_point_cloud(5,eps);
@@ -14,7 +19,7 @@ int main() {
 //    cout << endl;
 //    gr.print_adj_matrix();
 //    auto b_n = tree.betti_numbers();
-    write_betti_num_to_file(20.0,0.1,R"(C:\C++_proj\FastHNF\res.txt)",pnt_cld,3);
+    write_betti_num_to_file(0.7,0.01,R"(C:\C++_proj\FastHNF\res.txt)",pnt_cld,5);
 //    vector<double> a ={0.0,0.0,0.2};
 //    vector<double> b ={1.0,0.0,0.0};
 //    vector<double> c ={1.5,0.0,0.0};
