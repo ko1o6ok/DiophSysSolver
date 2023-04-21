@@ -53,21 +53,24 @@ double euclidean_distance(vector<double> point_1, vector<double> point_2){
     }
     return sqrt(S);
 }
-void Graph::connect_eps_neighbours(double eps) {
-
+Graph Graph::connect_eps_neighbours(double eps) {
+    Graph diff_gr(point_cloud);
     // Проходим по облаку точек
     for (int i = 0; i < num_vertices; ++i){
         vertices.push_back(i);
+        diff_gr.vertices.push_back(i);
         for (int j = i+1; j < num_vertices; ++j) {
             auto dist = euclidean_distance(point_cloud[i],point_cloud[j]);
             //cout << "I've computed the distance "<< dist << endl;
             if((adj_matrix[i][j] == 0)&&(dist <= eps)){
                 connect_vertices(i,j);
+                diff_gr.connect_vertices(i,j);
                 //cout << "Connecting vertices "<< i<<" and "<< j << endl;
             }
 
         }
     }
+    return diff_gr;
 }
 
 //void Graph::disconnect_vertices(unsigned long vert1, unsigned long vert2) {
@@ -85,10 +88,25 @@ void Graph::print_adj_matrix() {
     }
 }
 
-vector<unsigned long> Graph::lower_neighbours(unsigned long vertex) {
+vector<unsigned long> Graph::lower_neighbours(unsigned long vertex,Graph difference) {
     vector<unsigned long> res;
     for(auto& v:vertices)
-        if((v < vertex)&&(adj_matrix[v][vertex] != 0))
+        if((v < vertex)&&(adj_matrix[v][vertex] != 0)&(difference.adj_matrix[v][vertex]!=0))
             res.push_back(v);
     return res;
+}
+
+Graph::Graph(const Graph &another_g) {
+    vertices = another_g.vertices;
+    num_vertices = another_g.num_vertices;
+    adj_matrix = another_g.adj_matrix;
+    point_cloud = another_g.point_cloud;
+}
+
+bool Graph::is_empty() {
+    for (int i = 0; i < num_vertices; ++i)
+        for (int j = i+1; j < num_vertices; ++j)
+            if(adj_matrix[i][j]!=0)
+                return false;
+    return true;
 }

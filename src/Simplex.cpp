@@ -113,99 +113,105 @@ vector<Simplex> SimplexTree::all_simplexes_of_dim(int k) const {
     return simplexes;
 }
 
-Graph SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
-    //root->children.clear();
-    // Создали граф ближайших соседей
-    Graph g(point_cloud);
-    max_dimension = max_dim;
-    g.connect_eps_neighbours(eps);
-//    cout << "HERE !!!"<<endl;
-//    g.print_adj_matrix();
-//    cout << "HERE !!!"<<endl;
-//    for(auto& row:g.vertices){
-//            cout << row << ", ";
+//Graph SimplexTree::construct_from_point_cloud(unsigned long max_dim,double eps) {
+//    //root->children.clear();
+//    // Создали граф ближайших соседей
+//    Graph gr(point_cloud);
+//    max_dimension = max_dim;
+//    gr.connect_eps_neighbours(eps);
+////    cout << "HERE !!!"<<endl;
+////    g.print_adj_matrix();
+////    cout << "HERE !!!"<<endl;
+////    for(auto& row:g.vertices){
+////            cout << row << ", ";
+////
+////    }cout << endl;
+//    // На его основе создаём комплекс Вьеториса-Рипса:
 //
-//    }cout << endl;
-    // На его основе создаём комплекс Вьеториса-Рипса:
-
-    // Сначала заносим просто все точки
-    for (int i = 0; i < num_vertices; ++i) {
-        add_child(root,i);
-    }
-    if(max_dimension == 0)
-        return g;
-    // Индуктивно добавляем симплексы размерности <= max_dimension
-    for (int k = 1; k < max_dimension+1; ++k) {
-
-        auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
-
-        if(!simplexes.empty()){
-            for(auto& simplex:simplexes){
-                // Рассмотрим последовательность вершин данного симплекса (она упорядочена по возрастанию!)
-                auto his_word = simplex.make_word();
-                vector<unsigned long> N; // Вершины, которые будут добавлены
-                for (auto& u:his_word) {
-                    auto l_n = g.lower_neighbours(u); // Предшествующие вершины
-//                    if(k == 2){
-//                        cout << "SEARCHING LOWER NEIGHBOURS of "<<u << endl;
+//    // Сначала заносим просто все точки
+//    for (int i = 0; i < num_vertices; ++i) {
+//        add_child(root,i);
+//    }
+//    if(max_dimension == 0)
+//        return g;
+//    // Индуктивно добавляем симплексы размерности <= max_dimension
+//    for (int k = 1; k < max_dimension+1; ++k) {
 //
-//                        for(auto& t:l_n)
-//                            cout << t << ", ";
-//                        cout << endl << "------------------"<<endl;
-//                    }
-
-                    // Вставляем, сортируем и удаляем дубликаты
-                    N.insert(N.end(),l_n.begin(),l_n.end());
-                    sort(N.begin(),N.end());
-                    N.erase(unique(N.begin(),N.end()),N.end());
-//                    cout << "N is"<<endl;
-//                    for(auto& t:N)
-//                        cout << t << ", ";
-//                    cout << endl;
-                }
-                for(auto& vertex:N){
-                    // Наращиваем новый симплекс из предыдущего
-                    vector<unsigned long> ins({vertex});
-                    // Вставляем, сортируем и удаляем дубликаты
-                    bool not_connected = false;
-                    for (auto& his_vert:his_word) {
-                        if(g.adj_matrix[vertex][his_vert] == 0){
-                            not_connected = true;
-                            break;
-                        }
-                    }
-                    if(not_connected)
-                        continue;
-                    ins.insert(ins.end(),his_word.begin(),his_word.end());
-                    sort(ins.begin(),ins.end());
-                    ins.erase(unique(ins.begin(),ins.end()),ins.end());
-                    if(ins.size()==k+1){
-//                        if( k == 2){
-//                            cout << "Inserting with k = "<< k <<endl;
-//                            cout << ins.size() << " < - "<<endl;
-//                            for(auto& t:ins)
-//                                cout << t << ", ";
-//                            cout << endl;
+//        auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
+//
+//        if(!simplexes.empty()){
+//            for(auto& simplex:simplexes){
+//                // Рассмотрим последовательность вершин данного симплекса (она упорядочена по возрастанию!)
+//                auto his_word = simplex.make_word();
+//                vector<unsigned long> N; // Вершины, которые будут добавлены
+//                for (auto& u:his_word) {
+//                    auto l_n = g.lower_neighbours(u); // Предшествующие вершины
+////                    if(k == 2){
+////                        cout << "SEARCHING LOWER NEIGHBOURS of "<<u << endl;
+////
+////                        for(auto& t:l_n)
+////                            cout << t << ", ";
+////                        cout << endl << "------------------"<<endl;
+////                    }
+//
+//                    // Вставляем, сортируем и удаляем дубликаты
+//                    N.insert(N.end(),l_n.begin(),l_n.end());
+//                    sort(N.begin(),N.end());
+//                    N.erase(unique(N.begin(),N.end()),N.end());
+////                    cout << "N is"<<endl;
+////                    for(auto& t:N)
+////                        cout << t << ", ";
+////                    cout << endl;
+//                }
+//                for(auto& vertex:N){
+//                    // Наращиваем новый симплекс из предыдущего
+//                    vector<unsigned long> ins({vertex});
+//                    // Вставляем, сортируем и удаляем дубликаты
+//                    bool not_connected = false;
+//                    for (auto& his_vert:his_word) {
+//                        if(gr.adj_matrix[vertex][his_vert] == 0){
+//                            not_connected = true;
+//                            break;
 //                        }
-
-                        insert_simplex(ins);
-                    }
-
-                }
-            }
-        }
-        else{
-            break;
-        }
-    }
-
-    return g;
-}
+//                    }
+//                    if(not_connected)
+//                        continue;
+//                    ins.insert(ins.end(),his_word.begin(),his_word.end());
+//                    sort(ins.begin(),ins.end());
+//                    ins.erase(unique(ins.begin(),ins.end()),ins.end());
+//                    if(ins.size()==k+1){
+////                        if( k == 2){
+////                            cout << "Inserting with k = "<< k <<endl;
+////                            cout << ins.size() << " < - "<<endl;
+////                            for(auto& t:ins)
+////                                cout << t << ", ";
+////                            cout << endl;
+////                        }
+//
+//                        insert_simplex(ins);
+//                    }
+//
+//                }
+//            }
+//        }
+//        else{
+//            break;
+//        }
+//    }
+//
+//    return gr;
+//}
 
 SimplexTree::SimplexTree(vector<vector<double>> &pnt_cld) {
     point_cloud = pnt_cld;
     root = make_a_node(0);
     num_vertices = pnt_cld.size();
+    g = Graph(pnt_cld);
+    max_dimension = num_vertices;
+
+    for (int i = 0; i < num_vertices; ++i) {
+        add_child(root,i);
+    }
 }
 
 void SimplexTree::print() const {
@@ -533,12 +539,12 @@ vector<int> SimplexTree::betti_numbers() const {
         //cout << "Was this matrix "<<endl;
         //M.print();
         to_SNF(M); // Приводим её к смитовой нормальной форме
-        //cout << "Current matrix "<<endl;
-        //M.print();
-        //cout << endl << "Previous matrix "<<endl;
-        //prev.print();
-        //cout << endl;
-        //cout << "Her number of adds "<<prev_adds<<endl;
+//        cout << "Current matrix "<<endl;
+//        M.print();
+//        cout << endl << "Previous matrix "<<endl;
+//        prev.print();
+//        cout << endl;
+//        cout << "Her number of adds "<<prev_adds<<endl;
         int inserted_betti_number;
         if(no_simplexes){
             //cout << "FOUND NO SIMPLEXES OF DIM "<<i<<endl;
@@ -550,6 +556,9 @@ vector<int> SimplexTree::betti_numbers() const {
         }else{
             inserted_betti_number = prev.nullity()-prev_adds - M.rank();
         }
+//        if(prev.nullity() - prev_adds == 0){
+//            inserted_betti_number = 0;
+//        }
 //        if(inserted_betti_number == 2){
 //
 //        }
@@ -568,6 +577,111 @@ vector<int> SimplexTree::betti_numbers() const {
     return res;
 }
 
+Graph SimplexTree::eps_upgrade(double eps) {
+
+
+    //max_dimension = max_dim;
+
+    // Здесь важно учесть предыдущее состояние, чтобы не считать одно и то же дважды
+    //Graph prev_g(g);
+    auto g_empty = g.is_empty();
+    Graph difference = g.connect_eps_neighbours(eps);
+
+    if((difference.is_empty())&&(!g_empty))
+        return g;
+//    cout << "GRAPH !!!"<<endl;
+//    g.print_adj_matrix();
+//    cout << "DIFFERENCE !!!"<<endl;
+//    difference.print_adj_matrix();
+//    cout << "HERE !!!"<<endl;
+//    for(auto& row:g.vertices){
+//            cout << row << ", ";
+//
+//    }cout << endl;
+    // На его основе создаём комплекс Вьеториса-Рипса:
+
+
+
+    if(max_dimension == 0)
+        return g;
+    // Индуктивно добавляем симплексы размерности <= max_dimension
+    for (int k = 1; k < max_dimension+1; ++k) {
+
+        auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
+
+        if(!simplexes.empty()){
+            for(auto& simplex:simplexes){
+                // Рассмотрим последовательность вершин данного симплекса (она упорядочена по возрастанию!)
+                auto his_word = simplex.make_word();
+                vector<unsigned long> N; // Вершины, которые будут добавлены
+                for (auto& u:his_word) {
+                    auto l_n = g.lower_neighbours(u,difference); // Предшествующие вершины
+                    // Предшествующие вершины должны входить в граф разности иначе они уже были добавлены
+//                    if(k == 2){
+//                        cout << "SEARCHING LOWER NEIGHBOURS of "<<u << endl;
+//
+//                        for(auto& t:l_n)
+//                            cout << t << ", ";
+//                        cout << endl << "------------------"<<endl;
+//                    }
+
+                    // Вставляем, сортируем и удаляем дубликаты
+                    N.insert(N.end(),l_n.begin(),l_n.end());
+                    sort(N.begin(),N.end());
+                    N.erase(unique(N.begin(),N.end()),N.end());
+//                    cout << "N is"<<endl;
+//                    for(auto& t:N)
+//                        cout << t << ", ";
+//                    cout << endl;
+                }
+                for(auto& vertex:N){
+                    // Наращиваем новый симплекс из предыдущего
+                    vector<unsigned long> ins({vertex});
+                    // Вставляем, сортируем и удаляем дубликаты
+                    bool not_connected = false;
+                    for (auto& his_vert:his_word) {
+                        if(difference.adj_matrix[vertex][his_vert] == 0){
+                            not_connected = true;
+                            break;
+                        }
+                    }
+                    if(not_connected)
+                        continue;
+                    ins.insert(ins.end(),his_word.begin(),his_word.end());
+                    sort(ins.begin(),ins.end());
+                    ins.erase(unique(ins.begin(),ins.end()),ins.end());
+                    if(ins.size()==k+1){
+                        if( (eps > 0.32)&&(eps<0.35)){
+                            cout << "Inserting with k = "<< k <<endl;
+                            cout << ins.size() << " < - "<<endl;
+                            for(auto& t:ins)
+                                cout << t << ", ";
+                            cout << endl;
+                        }
+//                        if(ins == vector<unsigned long>({1,2,3,9})){
+//                            cout << "IS IT REALLY CONNECTED??" << endl;
+//                            cout << g.adj_matrix[1][2] << endl;
+//                            cout << g.adj_matrix[1][3] << endl;
+//                            cout << g.adj_matrix[1][9] << endl;
+//                            cout << g.adj_matrix[2][3] << endl;
+//                            cout << g.adj_matrix[2][9] << endl;
+//                            cout << g.adj_matrix[3][9] << endl;
+//                            cout << "IS IT REALLY CONNECTED??" << endl;
+//                        }
+                        //if(ins != vector<unsigned long>({1,2,3,9}))
+                        insert_simplex(ins);
+                    }
+
+                }
+            }
+        }
+        else{
+            break;
+        }
+    }
+
+    return g;
+}
 
 
 void print_tree(const string& prefix,MyNode* rt) {
@@ -616,25 +730,30 @@ void write_betti_num_to_file(double max_eps,double step,const string& filename,v
     out.open(filename);
     double eps = 0.0;
 
+    SimplexTree tree(pnt_cld);
+    tree.max_dimension = max_dim;
+
     while(eps < max_eps){
         // Естественно, лучше не каждый раз его заново создавать, а наращивать существующее
         // Здесь можно ускорить!!
-        SimplexTree tree(pnt_cld);
+
 
         // Вот это мы замеряем
 
-        auto start = chrono::high_resolution_clock::now();
-        Graph gr = tree.construct_from_point_cloud(max_dim,eps);
+//        auto start = chrono::high_resolution_clock::now();
+        Graph gr = tree.eps_upgrade(eps);
         auto b_n = tree.betti_numbers();
-        auto stop = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
-        cout <<eps<<","<<duration.count()<< endl;
+//        auto stop = chrono::high_resolution_clock::now();
+//        auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+//        cout <<eps<<","<<duration.count()<< endl;
 
-
-        //cout << "Current eps is "<<eps << endl;
-        //tree.print();cout <<endl;
-        //gr.print_adj_matrix();
-        //cout << endl;
+//        if((eps > 0.32)&&(eps<0.35)){
+//            cout << "Current eps is "<<eps << endl;
+//            tree.print();cout <<endl;
+//            gr.print_adj_matrix();
+//            cout << endl;
+//
+//        }
 
             //cout <<
 //        if(b_n[0] == 2){

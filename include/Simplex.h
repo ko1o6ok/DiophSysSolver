@@ -43,13 +43,13 @@ class SimplexTree{
 public:
     MyNode* root; // Корень
     vector<vector<double>> point_cloud; // Порождающее множество точек
-    //Graph g; // Его граф
+    Graph g; // Его граф
     unsigned long max_dimension; // Максимальная размерность входящего симплекса
     unsigned long num_vertices; // Число вершин
     void insert_simplex(Simplex s);
     void insert_simplex(vector<unsigned long> v);
     vector<Simplex> all_simplexes_of_dim(int k) const; // Строит по дереву все симплексы размерности k
-    Graph construct_from_point_cloud(unsigned long max_dimension,double eps); // Строит симплекс-дерево на основе графа ближайших соседей
+    //Graph construct_from_point_cloud(unsigned long max_dimension,double eps); // Строит симплекс-дерево на основе графа ближайших соседей
     Matrix<long int> border_operator_matrix(int dimension,int& adds,bool& no_simplexes) const; // Матрица оператора границы
     Matrix<long int> border_operator_matrix(int dimension) const; // Матрица оператора границы
     vector<int> betti_numbers() const; // Выписать числа Бэтти данного комплекса
@@ -60,6 +60,8 @@ public:
     void print() const;
     // Базовый деструктор
     ~SimplexTree();
+
+    Graph eps_upgrade(double eps);
 };
 vector<vector<double>> read_to_pnt_cld(const string& filename);// Чтение облака точек из файла
 void print_tree(const string& prefix,MyNode* rt);// Выписать дерево

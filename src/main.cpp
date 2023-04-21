@@ -19,7 +19,7 @@ int main() {
 //    cout << endl;
 //    gr.print_adj_matrix();
 //    auto b_n = tree.betti_numbers();
-    write_betti_num_to_file(1.5,0.01,R"(C:\C++_proj\FastHNF\res.txt)",pnt_cld,5);
+    write_betti_num_to_file(7.0,0.25,R"(C:\C++_proj\FastHNF\res.txt)",pnt_cld,4);
 //    vector<double> a ={0.0,0.0,0.2};
 //    vector<double> b ={1.0,0.0,0.0};
 //    vector<double> c ={1.5,0.0,0.0};
