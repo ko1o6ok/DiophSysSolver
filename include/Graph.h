@@ -13,7 +13,7 @@ public:
     Graph();// Конструктор по умолчанию
     explicit Graph(list<unsigned long> verts); // Создание пустого графа из вершин verts
     void connect_vertices(unsigned long vert1,unsigned long vert2); // Соединить две вершины ребром
-    void disconnect_vertices(unsigned long vert1,unsigned long vert2); // Рассоединить две вершины
+    //void disconnect_vertices(unsigned long vert1,unsigned long vert2); // Рассоединить две вершины
     explicit Graph(const vector<vector<double>>& pnt_cld); // Создание ПУСТОГО графа из облака точек
     void connect_eps_neighbours(double eps); // Соединить только вершины с ЕВКЛИДОВЫМ расстоянием < eps
     void print_adj_matrix(); // Вывод матрицы смежности

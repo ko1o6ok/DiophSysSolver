@@ -302,27 +302,27 @@ template<> void Matrix<double>::print() {
         cout << endl;
     }
 }
-vector<int> indexes_wrong_part(Matrix<int>& A){
-    unsigned int n = A.GetSize();
-    // Проходимся по каждой строке
-    // По столбцам не нужно из-за особенностей алгоритма
-   // int num = 0 ;
-   vector<int> indexes;
-    for (int i = 0; i < n; ++i) {
-        auto& row = A[i];
-        for (int j = i+1; j < n; ++j) {
-            if(row[j]!=0){
-                indexes.push_back(i);
-                //cout << row << endl;
-                //num++;
-                break;
-            }
-
-        }
-    }
-    return indexes;
-    //cout << "There's "<<num<<" of them"<< endl;
-}
+//vector<int> indexes_wrong_part(Matrix<int>& A){
+//    unsigned int n = A.GetSize();
+//    // Проходимся по каждой строке
+//    // По столбцам не нужно из-за особенностей алгоритма
+//   // int num = 0 ;
+//   vector<int> indexes;
+//    for (int i = 0; i < n; ++i) {
+//        auto& row = A[i];
+//        for (int j = i+1; j < n; ++j) {
+//            if(row[j]!=0){
+//                indexes.push_back(i);
+//                //cout << row << endl;
+//                //num++;
+//                break;
+//            }
+//
+//        }
+//    }
+//    return indexes;
+//    //cout << "There's "<<num<<" of them"<< endl;
+//}
 
 
 void compute_SNF(Matrix<long>& A) {
@@ -494,250 +494,250 @@ Matrix<long> to_SNF(Matrix<long>& A){
     //compute_SNF(T);
     return A;
 }
-pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A) {
-    auto temp = A;
-    unsigned int n = A.GetSize();
-//    auto B = A.transpose();
-//    A = B*A;
-    Matrix<int> U(n); // Матрица, запоминающая действия со строками
-    Matrix<int> R(n); // Матрица, запоминающая действия со столбцами
-    // Сначала U - единичная матрица
-    // Она будет присоединена к исходной матрице
-    for (int i = 0; i < n; ++i){
-        U.val[i][i] = 1;
-        R.val[i][i] = 1;
-    }
-
-    // (A | U)
-    // U A R = D - почти диагональная
-    //Разрешённые действия (строки/столбцы a и b):
-    // a = a +k *b
-    // a = -a
-    // a < - > b (поменять местами)
-    //cout << "Matrix U on step "<< -1 <<": "<< endl << U ;
-
-    // Проход по столбцам - многомерный аналог алгоритма Евклида: сложность O(1)*n = O(n)
-    // Умножение вектора на скаляр - O(n)
-    // Итого n * O(n^2) = O(n^3)
-
-    // Пока нет квантовых компьютеров, можно лишь понижать константу
-
-    int num_nonzero = 10; // Число ненулевых элементов в текущем столбце в данный момент
-    int pos_min_nonzero; // Позиция минимального ненулевого элемента
-    int min_nz; // Минимальный по модулю ненулевой элемент в k-м столбце
-    int second_min_nz; // Второй минимум
-    int pos_sec_nz; // Позиция второго минимума
-
-    int m; // Здесь будет целая часть отношения в алгоритме Евклида (div в общем)
-    int multiplier;
-
-    int saved_zero;
-    for(int k = 0; k<n; k++){
-        auto A_T = A.transpose(); // Чтобы компу было удобнее ходить в память
-
-//        TDynamicVector<int> col = A_T[k];// Берём k-й столбец
-        TDynamicVector<int> col(n);
-        for(int p=0;p<n;p++){
-            col[p] = A[p][k];
-        }
-        // Расширенный алгоритм Евклида над столбцом
-
-        while (true){
-            num_nonzero = 1;
-
-            //int j = 0;
-            // Нули нам явно не нужны. They are the good guys.
-            int j = k;
-            while (col[j] == 0)
-                j++;
-            // Нули в начале пройдены
-            min_nz = col[j];
-            pos_min_nonzero = j;
-
-            second_min_nz = col[j];
-            pos_sec_nz = j;
-            bool flag = false;
-            for (int i = j+1;i<n;i++) {
-                int t = col[i];
-                if(t!=0){
-                    if(abs(t) < abs(min_nz)){
-                        second_min_nz = min_nz;
-                        pos_sec_nz = pos_min_nonzero;
-
-                        min_nz = t;
-                        pos_min_nonzero = i;
-                    }
-                    else{
-                        if(!flag){
-                            second_min_nz = t;
-                            pos_sec_nz = i;
-                            flag = true;
-                        }
-                        if((t!=min_nz)&&(abs(t) < abs(second_min_nz))){
-                            second_min_nz = t;
-                            pos_sec_nz = i;
-                        }
-                    }
-                    num_nonzero ++;
-                }
-            }
-            //cout << col <<"|"<< min_nz<<","<< second_min_nz<< endl;
-            if(num_nonzero == 1) break; // Алгоритм Евклида гарантирует, что мы точно придём сюда
-            // Теперь совершаем алгоритм Евклида над двумя мин. элементами
-//            cout << "current matrix: "<< endl;
-//            A.print();
-//            //cout << A[1] << endl;
-//            cout << "also matrix: "<< endl;
-//            (U * temp * R).print();
-            while ((min_nz!=0)&&(second_min_nz!=0)){
-                m  = floor(second_min_nz/min_nz);
-                A[pos_sec_nz] = A[pos_sec_nz] - A[pos_min_nonzero] * m;
-                U[pos_sec_nz] = U[pos_sec_nz] - U[pos_min_nonzero] * m;
-                second_min_nz = second_min_nz % min_nz ;
-                col[pos_sec_nz] = col[pos_sec_nz] % min_nz;
-                if(second_min_nz == 0)
-                    break;
-                m  = floor(min_nz/second_min_nz);
-                A[pos_min_nonzero] = A[pos_min_nonzero] - A[pos_sec_nz] * m;
-                U[pos_min_nonzero] = U[pos_min_nonzero] - U[pos_sec_nz] * m;
-                min_nz = min_nz % second_min_nz;
-                col[pos_min_nonzero] = col[pos_min_nonzero] % second_min_nz;
-            }
-            if(min_nz == 0){
-                min_nz = second_min_nz;
-                pos_min_nonzero = pos_sec_nz;
-            }
-            // Вертикальный ход
-            for (int l = 0;l<n;l++)
-                if((l != pos_min_nonzero)&&(col[l]!=0)){
-                    multiplier = floor(col[l]/min_nz);
-                    col[l] = col[l] - min_nz * multiplier;
-
-                    A[l] = A[l] - A[pos_min_nonzero] * multiplier;
-
-                    U[l] = U[l] - U[pos_min_nonzero] * multiplier;
-                }
-
-        }
-//        cout << "current matrix: "<< endl;
-//        A.print();
-//        //cout << A[1] << endl;
-//        cout << "also matrix: "<< endl;
-//        (U * temp * R).print();
-        // Апосля того, как был зачищен стобец, меняем местами k-ю и min_pos строки
-        if(k!=n-1){
-            swap(A[k],A[pos_min_nonzero]);
-            swap(U[k],U[pos_min_nonzero]);
-        }
-//        cout << "current matrix: "<< endl;
-//        A.print();
-//        //cout << A[1] << endl;
-//        cout << "also matrix: "<< endl;
-//        (U * temp * R).print();
-
-        //cout << A << endl;
-        // А теперь, пользуясь оставшимся ненулевым элементом, уменьшаем элементы строки
-        int el = A[k][k];
-        // Проходим по k-й строке
-        //auto T = A.transpose();
-        for (int i = k+1; i < n; i++) {
-            int& t = A[k][i];
-            if(abs(el) <= abs(t)){
-//                A.print() ;
-//                cout << "________" << R[i] << endl;
-//                cout << floor(t/el) << endl;
-//                cout << R[k] * floor(t/el) << endl;
-                R[i] = R[i] -  R[k] * floor(t/el);
-                t = t % el;
-                //T[i] = T[i] -  T[k] * floor(abs(t/el));
-//                cout << R[i] << endl;
-//                cout << R[i][k] << " | "<< R[k][k] << "|" << floor(t/el) << endl;
-//                cout << "Получившийся элемент "<<R[i][k] << endl;
+//pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A) {
+//    auto temp = A;
+//    unsigned int n = A.GetSize();
+////    auto B = A.transpose();
+////    A = B*A;
+//    Matrix<int> U(n); // Матрица, запоминающая действия со строками
+//    Matrix<int> R(n); // Матрица, запоминающая действия со столбцами
+//    // Сначала U - единичная матрица
+//    // Она будет присоединена к исходной матрице
+//    for (int i = 0; i < n; ++i){
+//        U.val[i][i] = 1;
+//        R.val[i][i] = 1;
+//    }
+//
+//    // (A | U)
+//    // U A R = D - почти диагональная
+//    //Разрешённые действия (строки/столбцы a и b):
+//    // a = a +k *b
+//    // a = -a
+//    // a < - > b (поменять местами)
+//    //cout << "Matrix U on step "<< -1 <<": "<< endl << U ;
+//
+//    // Проход по столбцам - многомерный аналог алгоритма Евклида: сложность O(1)*n = O(n)
+//    // Умножение вектора на скаляр - O(n)
+//    // Итого n * O(n^2) = O(n^3)
+//
+//    // Пока нет квантовых компьютеров, можно лишь понижать константу
+//
+//    int num_nonzero = 10; // Число ненулевых элементов в текущем столбце в данный момент
+//    int pos_min_nonzero; // Позиция минимального ненулевого элемента
+//    int min_nz; // Минимальный по модулю ненулевой элемент в k-м столбце
+//    int second_min_nz; // Второй минимум
+//    int pos_sec_nz; // Позиция второго минимума
+//
+//    int m; // Здесь будет целая часть отношения в алгоритме Евклида (div в общем)
+//    int multiplier;
+//
+//    int saved_zero;
+//    for(int k = 0; k<n; k++){
+//        auto A_T = A.transpose(); // Чтобы компу было удобнее ходить в память
+//
+////        TDynamicVector<int> col = A_T[k];// Берём k-й столбец
+//        TDynamicVector<int> col(n);
+//        for(int p=0;p<n;p++){
+//            col[p] = A[p][k];
+//        }
+//        // Расширенный алгоритм Евклида над столбцом
+//
+//        while (true){
+//            num_nonzero = 1;
+//
+//            //int j = 0;
+//            // Нули нам явно не нужны. They are the good guys.
+//            int j = k;
+//            while (col[j] == 0)
+//                j++;
+//            // Нули в начале пройдены
+//            min_nz = col[j];
+//            pos_min_nonzero = j;
+//
+//            second_min_nz = col[j];
+//            pos_sec_nz = j;
+//            bool flag = false;
+//            for (int i = j+1;i<n;i++) {
+//                int t = col[i];
+//                if(t!=0){
+//                    if(abs(t) < abs(min_nz)){
+//                        second_min_nz = min_nz;
+//                        pos_sec_nz = pos_min_nonzero;
+//
+//                        min_nz = t;
+//                        pos_min_nonzero = i;
+//                    }
+//                    else{
+//                        if(!flag){
+//                            second_min_nz = t;
+//                            pos_sec_nz = i;
+//                            flag = true;
+//                        }
+//                        if((t!=min_nz)&&(abs(t) < abs(second_min_nz))){
+//                            second_min_nz = t;
+//                            pos_sec_nz = i;
+//                        }
+//                    }
+//                    num_nonzero ++;
+//                }
+//            }
+//            //cout << col <<"|"<< min_nz<<","<< second_min_nz<< endl;
+//            if(num_nonzero == 1) break; // Алгоритм Евклида гарантирует, что мы точно придём сюда
+//            // Теперь совершаем алгоритм Евклида над двумя мин. элементами
+////            cout << "current matrix: "<< endl;
+////            A.print();
+////            //cout << A[1] << endl;
+////            cout << "also matrix: "<< endl;
+////            (U * temp * R).print();
+//            while ((min_nz!=0)&&(second_min_nz!=0)){
+//                m  = floor(second_min_nz/min_nz);
+//                A[pos_sec_nz] = A[pos_sec_nz] - A[pos_min_nonzero] * m;
+//                U[pos_sec_nz] = U[pos_sec_nz] - U[pos_min_nonzero] * m;
+//                second_min_nz = second_min_nz % min_nz ;
+//                col[pos_sec_nz] = col[pos_sec_nz] % min_nz;
+//                if(second_min_nz == 0)
+//                    break;
+//                m  = floor(min_nz/second_min_nz);
+//                A[pos_min_nonzero] = A[pos_min_nonzero] - A[pos_sec_nz] * m;
+//                U[pos_min_nonzero] = U[pos_min_nonzero] - U[pos_sec_nz] * m;
+//                min_nz = min_nz % second_min_nz;
+//                col[pos_min_nonzero] = col[pos_min_nonzero] % second_min_nz;
+//            }
+//            if(min_nz == 0){
+//                min_nz = second_min_nz;
+//                pos_min_nonzero = pos_sec_nz;
+//            }
+//            // Вертикальный ход
+//            for (int l = 0;l<n;l++)
+//                if((l != pos_min_nonzero)&&(col[l]!=0)){
+//                    multiplier = floor(col[l]/min_nz);
+//                    col[l] = col[l] - min_nz * multiplier;
+//
+//                    A[l] = A[l] - A[pos_min_nonzero] * multiplier;
+//
+//                    U[l] = U[l] - U[pos_min_nonzero] * multiplier;
+//                }
+//
+//        }
+////        cout << "current matrix: "<< endl;
+////        A.print();
+////        //cout << A[1] << endl;
+////        cout << "also matrix: "<< endl;
+////        (U * temp * R).print();
+//        // Апосля того, как был зачищен стобец, меняем местами k-ю и min_pos строки
+//        if(k!=n-1){
+//            swap(A[k],A[pos_min_nonzero]);
+//            swap(U[k],U[pos_min_nonzero]);
+//        }
+////        cout << "current matrix: "<< endl;
+////        A.print();
+////        //cout << A[1] << endl;
+////        cout << "also matrix: "<< endl;
+////        (U * temp * R).print();
+//
+//        //cout << A << endl;
+//        // А теперь, пользуясь оставшимся ненулевым элементом, уменьшаем элементы строки
+//        int el = A[k][k];
+//        // Проходим по k-й строке
+//        //auto T = A.transpose();
+//        for (int i = k+1; i < n; i++) {
+//            int& t = A[k][i];
+//            if(abs(el) <= abs(t)){
+////                A.print() ;
+////                cout << "________" << R[i] << endl;
+////                cout << floor(t/el) << endl;
+////                cout << R[k] * floor(t/el) << endl;
+//                R[i] = R[i] -  R[k] * floor(t/el);
 //                t = t % el;
-//                cout << "Получившийся элемент "<<t << endl;
-//                A.print() ;
-            }
-        }
-        //A = T.transpose();
-//        cout << "current matrix: "<< endl;
-//        A.print();
-//        //cout << A[1] << endl;
-//        cout << "also matrix: "<< endl;
-//        (U * temp * R).print();
-        //cout << A << endl;
-    }
-    // Финальная полировка
-    for (int k = 0; k < n; k++) {
-        int el = A[k][k];
-        // Проходим по k-й строке
-        for (int i = k+1; i < n; i++) {
-            int& t = A[k][i];
-            if(t!=0)
-                if(abs(el) <= abs(t)){
-
-                    R[i] =R[i] -  R[k] * floor(t/el);
-                    t = t % el;
-                }
-        }
-    }
-    return {U,R.transpose()};
-}
+//                //T[i] = T[i] -  T[k] * floor(abs(t/el));
+////                cout << R[i] << endl;
+////                cout << R[i][k] << " | "<< R[k][k] << "|" << floor(t/el) << endl;
+////                cout << "Получившийся элемент "<<R[i][k] << endl;
+////                t = t % el;
+////                cout << "Получившийся элемент "<<t << endl;
+////                A.print() ;
+//            }
+//        }
+//        //A = T.transpose();
+////        cout << "current matrix: "<< endl;
+////        A.print();
+////        //cout << A[1] << endl;
+////        cout << "also matrix: "<< endl;
+////        (U * temp * R).print();
+//        //cout << A << endl;
+//    }
+//    // Финальная полировка
+//    for (int k = 0; k < n; k++) {
+//        int el = A[k][k];
+//        // Проходим по k-й строке
+//        for (int i = k+1; i < n; i++) {
+//            int& t = A[k][i];
+//            if(t!=0)
+//                if(abs(el) <= abs(t)){
+//
+//                    R[i] =R[i] -  R[k] * floor(t/el);
+//                    t = t % el;
+//                }
+//        }
+//    }
+//    return {U,R.transpose()};
+//}
 
 // ax = 1 mod modulus
-int modulo_inverse(int a, int modulus)
-{
-    int m0 = modulus, t, q;
-    int x0 = 0, x1 = 1;
-
-    if (modulus == 1)
-    {
-        return 0;
-    }
-    while (a > 1) {
-        q = a / modulus;
-        t = modulus;
-        modulus = a % modulus, a = t;
-
-        t = x0;
-
-        x0 = x1 - q * x0;
-
-        x1 = t;
-    }
-
-    if (x1 < 0)
-    {
-        x1 += m0;
-    }
-
-    return x1;
-}
+//int modulo_inverse(int a, int modulus)
+//{
+//    int m0 = modulus, t, q;
+//    int x0 = 0, x1 = 1;
+//
+//    if (modulus == 1)
+//    {
+//        return 0;
+//    }
+//    while (a > 1) {
+//        q = a / modulus;
+//        t = modulus;
+//        modulus = a % modulus, a = t;
+//
+//        t = x0;
+//
+//        x0 = x1 - q * x0;
+//
+//        x1 = t;
+//    }
+//
+//    if (x1 < 0)
+//    {
+//        x1 += m0;
+//    }
+//
+//    return x1;
+//}
 
 // Минимальное положительное x, удовлетворяющее системе из n сравнений:
 // x = remainder_i mod number_i
-int chinese_remainder_theorem(const int* numbers, const int* remainders, int n)
-{
-    /*
-        Computing product of all numbers
-        from the num[] array
-    */
-    int prod = 1;
-    for (int i = 0; i < n; i++)
-    {
-        prod *= numbers[i];
-    }
-
-    // Initialize result
-    int result = 0;
-
-    // Apply the formula above
-    for (int i = 0; i < n; i++) {
-        int temp = prod / numbers[i];
-        result += remainders[i] * modulo_inverse(temp, numbers[i]) * temp;
-    }
-
-    return result % prod;
-}
+//int chinese_remainder_theorem(const int* numbers, const int* remainders, int n)
+//{
+//    /*
+//        Computing product of all numbers
+//        from the num[] array
+//    */
+//    int prod = 1;
+//    for (int i = 0; i < n; i++)
+//    {
+//        prod *= numbers[i];
+//    }
+//
+//    // Initialize result
+//    int result = 0;
+//
+//    // Apply the formula above
+//    for (int i = 0; i < n; i++) {
+//        int temp = prod / numbers[i];
+//        result += remainders[i] * modulo_inverse(temp, numbers[i]) * temp;
+//    }
+//
+//    return result % prod;
+//}
 //pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<int>& b, int p){
 //    unsigned int n = A.GetSize();
 //    Matrix<int> U(n); // Матрица, запоминающая действия со строками
@@ -824,33 +824,33 @@ int chinese_remainder_theorem(const int* numbers, const int* remainders, int n)
 //    cout << A;
 //    return {U,R.transpose()};
 //}
-vector<int> SieveOfEratosthenes(int n)
-{
-    vector<int> result;
-    // Create a boolean array "prime[0..n]" and initialize
-    // all entries it as true. A value in prime[i] will
-    // finally be false if i is Not a prime, else true.
-    bool prime[n + 1];
-    std::memset(prime, true, sizeof(prime));
-
-    for (int p = 2; p * p <= n; p++) {
-        // If prime[p] is not changed, then it is a prime
-        if (prime[p]) {
-            // Update all multiples of p greater than or
-            // equal to the square of it numbers which are
-            // multiple of p and are less than p^2 are
-            // already been marked.
-            for (int i = p * p; i <= n; i += p)
-                prime[i] = false;
-        }
-    }
-
-    // Print all prime numbers
-    for (int p = 2; p <= n; p++)
-        if (prime[p])
-            result.push_back(p);
-    return result;
-}
+//vector<int> SieveOfEratosthenes(int n)
+//{
+//    vector<int> result;
+//    // Create a boolean array "prime[0..n]" and initialize
+//    // all entries it as true. A value in prime[i] will
+//    // finally be false if i is Not a prime, else true.
+//    bool prime[n + 1];
+//    std::memset(prime, true, sizeof(prime));
+//
+//    for (int p = 2; p * p <= n; p++) {
+//        // If prime[p] is not changed, then it is a prime
+//        if (prime[p]) {
+//            // Update all multiples of p greater than or
+//            // equal to the square of it numbers which are
+//            // multiple of p and are less than p^2 are
+//            // already been marked.
+//            for (int i = p * p; i <= n; i += p)
+//                prime[i] = false;
+//        }
+//    }
+//
+//    // Print all prime numbers
+//    for (int p = 2; p <= n; p++)
+//        if (prime[p])
+//            result.push_back(p);
+//    return result;
+//}
 //pair<Matrix<int>,Matrix<int>> solve_SLDE_modular_method(Matrix<int>& A, TDynamicVector<int>& b){
 //    unsigned int n = A.GetSize();
 //    // Во-первых, оцениваем, насколько большими могут стать элементы (a_i <= det A <= |A1| * |A2| * ... - Hadamard bound)
@@ -869,11 +869,11 @@ vector<int> SieveOfEratosthenes(int n)
 //    // В-третьих, собираем всё вместе через CRT
 //
 //}
-Matrix<int> gen_public_key(int size,int range){
-    Matrix<int> m(size);
-    m.randomize(range);
-    return m;
-}
+//Matrix<int> gen_public_key(int size,int range){
+//    Matrix<int> m(size);
+//    m.randomize(range);
+//    return m;
+//}
 //vector<Matrix<int>> gen_private_key(Matrix<int>& public_key){
 //    auto L = decompose(public_key);
 //    vector<Matrix<int>> RES(3);
@@ -882,75 +882,75 @@ Matrix<int> gen_public_key(int size,int range){
 //    RES[2] = L.second;
 //    return RES;
 //}
-TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma){
-    auto length = message.size();
-    random_device rd;
-    mt19937_64 gen(rd());
-    uniform_int_distribution<> distr(-sigma,sigma);
+//TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma){
+//    auto length = message.size();
+//    random_device rd;
+//    mt19937_64 gen(rd());
+//    uniform_int_distribution<> distr(-sigma,sigma);
+//
+//    TDynamicVector<int> r(length);
+//    for (int i = 0;i<length;i++) {
+//        r[i] = distr(gen);
+//    }
+//
+//    return   public_key * message + r;
+//}
 
-    TDynamicVector<int> r(length);
-    for (int i = 0;i<length;i++) {
-        r[i] = distr(gen);
-    }
-
-    return   public_key * message + r;
-}
-
-TDynamicVector<int> decrypt(const TDynamicVector<int>& encrypted_message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R,short sigma){
-    // Быстро инвертируем приватный ключ. Это легко сделать, потому что векторы почти ортогональны
-    unsigned int s = private_key.GetSize();
-    // Сделаем из нашей матрицы матрицу из даблов
-    Matrix<double> tmp(s);
-    for (int i = 0; i < s; ++i)
-        for (int j = 0; j < s; ++j)
-            tmp[i][j] = private_key[i][j];
-    // Сделаем матрицу из даблов
-    Matrix<double> U_(s);
-    for (int i = 0; i < s; ++i)
-        for (int j = 0; j < s; ++j)
-            U_[i][j] = U[i][j];
-    // Сделаем матрицу из даблов
-    Matrix<double> R_(s);
-    for (int i = 0; i < s; ++i)
-        for (int j = 0; j < s; ++j)
-            R_[i][j] = R[i][j];
-    // Создадим единичную матрицу
-    Matrix<double> inverse(s);
-    for (int i = 0; i < s; ++i)
-        for (int j = 0; j < s; ++j)
-            inverse[i][j] = (i==j);
-    // Теперь посчитаем обратную
-    for (int i = 0; i < s; ++i) {
-        auto el = tmp[i][i];
-        tmp[i] = tmp[i] * (1/el);
-        inverse[i] = inverse[i] * (1/el);
-        for (int j = 0; j < i; ++j) {
-            auto p = tmp[j][i];
-            if(p!=0){
-                tmp[j] = tmp[j] - tmp[i] * p;
-                inverse[j] = inverse[j] - inverse[i] * p;
-            }
-        }
-    }
-    //inverse.print();
-    auto res_matrix =  R_ * inverse * U_;
-    //res_matrix.print();
-    size_t ms = encrypted_message.size();
-    TDynamicVector<double> encrypted_message_(ms);
-    for (int i = 0; i < ms;i++) {
-        encrypted_message_[i] = encrypted_message[i];
-    }
-    auto v_ = res_matrix * encrypted_message_;
-    cout << v_ << endl;
-    //cout <<"The resulting vector is "<< v_ << endl;
-    // Теперь используется алгоритм Бабая
-    // D x = v
-    auto x =  v_;
-    TDynamicVector<int> x_(x.size());
-    //round_to_nearest ;
-    for (int i = 0; i < x.size(); ++i) {
-        x_[i] = lround(x[i]);
-    }
-    auto decrypted_message = private_key * x_;
-    return decrypted_message;
-    }
+//TDynamicVector<int> decrypt(const TDynamicVector<int>& encrypted_message, Matrix<int> U,Matrix<int> private_key,Matrix<int> R,short sigma){
+//    // Быстро инвертируем приватный ключ. Это легко сделать, потому что векторы почти ортогональны
+//    unsigned int s = private_key.GetSize();
+//    // Сделаем из нашей матрицы матрицу из даблов
+//    Matrix<double> tmp(s);
+//    for (int i = 0; i < s; ++i)
+//        for (int j = 0; j < s; ++j)
+//            tmp[i][j] = private_key[i][j];
+//    // Сделаем матрицу из даблов
+//    Matrix<double> U_(s);
+//    for (int i = 0; i < s; ++i)
+//        for (int j = 0; j < s; ++j)
+//            U_[i][j] = U[i][j];
+//    // Сделаем матрицу из даблов
+//    Matrix<double> R_(s);
+//    for (int i = 0; i < s; ++i)
+//        for (int j = 0; j < s; ++j)
+//            R_[i][j] = R[i][j];
+//    // Создадим единичную матрицу
+//    Matrix<double> inverse(s);
+//    for (int i = 0; i < s; ++i)
+//        for (int j = 0; j < s; ++j)
+//            inverse[i][j] = (i==j);
+//    // Теперь посчитаем обратную
+//    for (int i = 0; i < s; ++i) {
+//        auto el = tmp[i][i];
+//        tmp[i] = tmp[i] * (1/el);
+//        inverse[i] = inverse[i] * (1/el);
+//        for (int j = 0; j < i; ++j) {
+//            auto p = tmp[j][i];
+//            if(p!=0){
+//                tmp[j] = tmp[j] - tmp[i] * p;
+//                inverse[j] = inverse[j] - inverse[i] * p;
+//            }
+//        }
+//    }
+//    //inverse.print();
+//    auto res_matrix =  R_ * inverse * U_;
+//    //res_matrix.print();
+//    size_t ms = encrypted_message.size();
+//    TDynamicVector<double> encrypted_message_(ms);
+//    for (int i = 0; i < ms;i++) {
+//        encrypted_message_[i] = encrypted_message[i];
+//    }
+//    auto v_ = res_matrix * encrypted_message_;
+//    cout << v_ << endl;
+//    //cout <<"The resulting vector is "<< v_ << endl;
+//    // Теперь используется алгоритм Бабая
+//    // D x = v
+//    auto x =  v_;
+//    TDynamicVector<int> x_(x.size());
+//    //round_to_nearest ;
+//    for (int i = 0; i < x.size(); ++i) {
+//        x_[i] = lround(x[i]);
+//    }
+//    auto decrypted_message = private_key * x_;
+//    return decrypted_message;
+//    }

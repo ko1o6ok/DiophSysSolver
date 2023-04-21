@@ -617,9 +617,20 @@ void write_betti_num_to_file(double max_eps,double step,const string& filename,v
     double eps = 0.0;
 
     while(eps < max_eps){
+        // Естественно, лучше не каждый раз его заново создавать, а наращивать существующее
+        // Здесь можно ускорить!!
         SimplexTree tree(pnt_cld);
+
+        // Вот это мы замеряем
+
+        auto start = chrono::high_resolution_clock::now();
         Graph gr = tree.construct_from_point_cloud(max_dim,eps);
         auto b_n = tree.betti_numbers();
+        auto stop = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+        cout <<eps<<","<<duration.count()<< endl;
+
+
         //cout << "Current eps is "<<eps << endl;
         //tree.print();cout <<endl;
         //gr.print_adj_matrix();

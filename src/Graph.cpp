@@ -70,12 +70,12 @@ void Graph::connect_eps_neighbours(double eps) {
     }
 }
 
-void Graph::disconnect_vertices(unsigned long vert1, unsigned long vert2) {
-    // Assume vert1 <= vert2
-    if(vert1 > vert2)
-        std::swap(vert1,vert2);
-    adj_matrix[vert1][vert2] = 0; // Используется только верхняя половина матрицы
-}
+//void Graph::disconnect_vertices(unsigned long vert1, unsigned long vert2) {
+//    // Assume vert1 <= vert2
+//    if(vert1 > vert2)
+//        std::swap(vert1,vert2);
+//    adj_matrix[vert1][vert2] = 0; // Используется только верхняя половина матрицы
+//}
 
 void Graph::print_adj_matrix() {
     for (int i = 0; i < num_vertices; ++i){
