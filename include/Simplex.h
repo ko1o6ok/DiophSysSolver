@@ -69,4 +69,6 @@ void simplexes_of_dim(MyNode* current_node,int k,vector<Simplex>& simplexes,cons
 // Запись чисел Бэтти для данного комплекса в файл
 void write_betti_num_to_file(double max_eps,double step,const string& filename,vector<vector<double>> pnt_cld,int max_dim);
 
+vector<vector<unsigned int>> distribute_load(vector<unsigned int> info,unsigned int N);
+
 #endif //FASTHNF_SIMPLEX_H

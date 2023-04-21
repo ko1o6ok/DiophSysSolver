@@ -788,3 +788,116 @@ vector<vector<double>> read_to_pnt_cld(const string& filename){
     }
     return res;
 }
+
+vector<vector<unsigned int>> distribute_load(vector<unsigned int> info,unsigned int N){
+    // В info на i - м месте количество симплексов i+1 - го ранга
+    unsigned int max_rank = info.size();
+
+    vector<vector<unsigned int>> work_arr(N);
+    vector<unsigned int> sums_array(N);
+
+    for (int i = 0; i < N; ++i) {
+        vector<unsigned int> v(max_rank);
+        for(auto& t:v)
+            t = 0;
+        work_arr[i] = v;
+
+        sums_array[i] = 0;
+    }
+
+
+
+    // Заполняем
+    for(int r = 0;r<max_rank;r++){
+        unsigned int num = info[r];
+        long j = 0;
+
+        while(num!=0){
+            if(j>= N)
+                j -= N;
+            work_arr[j][r] += 1;
+            num --;
+            j ++;
+        }
+    }
+
+    for (int i = 0; i < N; ++i) {
+        unsigned int S = 0;
+        for (int r = 0; r < work_arr[i].size(); ++r) {
+            S += work_arr[i][r] * (r+1);
+        }
+        sums_array[i] = S;
+    }
+    // Далее берём максимум и минимум: уменьшаем максимум за счёт увеличения минимума до значения меньше текущего максимума
+    // повторяем такую процедуру до тех пор, когда она уже ничего не меняет
+    vector<vector<unsigned int>> prev_arr(N);
+
+    unsigned int min;
+    int min_pos;
+    unsigned int max;
+    int max_pos;
+
+    while(prev_arr != work_arr){
+//        cout << "-------------" << endl;
+//        for (int i = 0; i < N; ++i) {
+//            cout << "DEVICE - "<<i<<endl;
+//            for (int j = 0; j < work_arr[i].size(); ++j) {
+//                cout << "Rank "<<j + 1 <<" num is "<<work_arr[i][j]<< endl;
+//            }
+//        }
+//        cout << "-------------" << endl;
+
+        prev_arr = work_arr;
+
+        min = sums_array[0];
+        max = sums_array[0];
+        min_pos = 0;
+        max_pos = 0;
+
+        for (int i = 1; i < N; ++i) {
+            auto t = sums_array[i];
+            if(t < min){
+                min = t;
+                min_pos = i;
+            }
+            if(t>max){
+                max = t;
+                max_pos = i;
+            }
+        }
+        if(min_pos == max_pos)
+            return work_arr;
+
+        auto current_max = max;
+        //unsigned int add = 0;
+
+        auto& a = work_arr[min_pos];
+        auto& b = work_arr[max_pos];
+
+
+        unsigned int ind = b.size()-1;
+
+        while(true){
+            if((b[ind] > 0)&&(min + ind +1 < max)){
+                b[ind] --;
+                a[ind] ++;
+                 max -= ind +1;
+                 min += ind +1;
+                 sums_array[max_pos] -= ind+1;
+                 sums_array[min_pos] += ind +1;
+            }
+            else{
+                ind --;
+            }
+
+            if(ind == -1)
+                break;
+        }
+        cout << "SUMS ARRAY: ";
+        for(auto& s:sums_array)
+            cout << s <<", ";
+        cout << endl;
+
+    }
+    return work_arr;
+}
