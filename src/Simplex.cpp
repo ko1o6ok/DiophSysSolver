@@ -651,13 +651,13 @@ Graph SimplexTree::eps_upgrade(double eps) {
                     sort(ins.begin(),ins.end());
                     ins.erase(unique(ins.begin(),ins.end()),ins.end());
                     if(ins.size()==k+1){
-                        if( (eps > 0.32)&&(eps<0.35)){
-                            cout << "Inserting with k = "<< k <<endl;
-                            cout << ins.size() << " < - "<<endl;
-                            for(auto& t:ins)
-                                cout << t << ", ";
-                            cout << endl;
-                        }
+//                        if( (eps > 0.32)&&(eps<0.35)){
+//                            cout << "Inserting with k = "<< k <<endl;
+//                            cout << ins.size() << " < - "<<endl;
+//                            for(auto& t:ins)
+//                                cout << t << ", ";
+//                            cout << endl;
+//                        }
 //                        if(ins == vector<unsigned long>({1,2,3,9})){
 //                            cout << "IS IT REALLY CONNECTED??" << endl;
 //                            cout << g.adj_matrix[1][2] << endl;
@@ -733,6 +733,7 @@ void write_betti_num_to_file(double max_eps,double step,const string& filename,v
     SimplexTree tree(pnt_cld);
     tree.max_dimension = max_dim;
 
+    //double time_taken = 0.0;
     while(eps < max_eps){
         // Естественно, лучше не каждый раз его заново создавать, а наращивать существующее
         // Здесь можно ускорить!!
@@ -740,11 +741,12 @@ void write_betti_num_to_file(double max_eps,double step,const string& filename,v
 
         // Вот это мы замеряем
 
-//        auto start = chrono::high_resolution_clock::now();
-        Graph gr = tree.eps_upgrade(eps);
+        //auto start = chrono::high_resolution_clock::now();
+        tree.eps_upgrade(eps);
         auto b_n = tree.betti_numbers();
-//        auto stop = chrono::high_resolution_clock::now();
-//        auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+        //auto stop = chrono::high_resolution_clock::now();
+        //auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+        //time_taken += duration.count();
 //        cout <<eps<<","<<duration.count()<< endl;
 
 //        if((eps > 0.32)&&(eps<0.35)){
@@ -767,6 +769,7 @@ void write_betti_num_to_file(double max_eps,double step,const string& filename,v
         //break;
         eps += step;
     }
+    //cout << "Time taken "<<time_taken << " ms"<<endl;
 }
 vector<vector<double>> read_to_pnt_cld(const string& filename){
     fstream in;
@@ -786,6 +789,7 @@ vector<vector<double>> read_to_pnt_cld(const string& filename){
         }
         in.close();
     }
+
     return res;
 }
 

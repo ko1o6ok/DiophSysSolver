@@ -6,12 +6,12 @@
 using namespace std::chrono;
 
 int main() {
-    vector<unsigned int> test = {16,30,25,6,3};
-    auto res = distribute_load(test,7);
+    //vector<unsigned int> test = {15,30,25,6,3};
+    //auto res = distribute_load(test,7);
 
 
 
-    //auto pnt_cld = read_to_pnt_cld(R"(C:\C++_proj\FastHNF\data.txt)");
+    auto pnt_cld = read_to_pnt_cld(R"(C:\C++_proj\FastHNF\data.txt)");
 
 //    for (auto& v:pnt_cld) {
 //        for(auto& t:v)
@@ -26,7 +26,7 @@ int main() {
 //    gr.print_adj_matrix();
 //    auto b_n = tree.betti_numbers();
 
-    //write_betti_num_to_file(7.0,0.25,R"(C:\C++_proj\FastHNF\res.txt)",pnt_cld,4);
+    write_betti_num_to_file(7.0,0.25,R"(C:\C++_proj\FastHNF\res.txt)",pnt_cld,5);
 
 //    vector<double> a ={0.0,0.0,0.2};
 //    vector<double> b ={1.0,0.0,0.0};
