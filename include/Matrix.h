@@ -4,16 +4,13 @@
 #include <iostream>
 #include <random>
 using namespace std;
-
 // Динамический вектор -
 // шаблонный вектор на динамической памяти
 template<typename T>
 class TDynamicVector
 {
-
 protected:
     size_t sz{};
-
 public:
     T* pMem;
     TDynamicVector(T* arr, size_t s) : sz(s)
@@ -163,27 +160,6 @@ public:
             t.pMem[i] += v[i];
         return t;
     }
-    TDynamicVector<int> mult_modulo(int by, int modulus){
-        TDynamicVector<int> a(sz);
-        for (int i = 0; i < sz; ++i) {
-            int t = (pMem[i] * by) % modulus;
-            if(t<0)
-                a[i] = modulus+t;
-            else{
-                a[i] = t;
-            }
-        }
-        return a;
-    }
-    TDynamicVector<int> add_modulo(const TDynamicVector<int>& to, int modulus){
-        TDynamicVector<int> a(sz);
-        for (int i = 0; i < sz; ++i) {
-            int t = (pMem[i] + to.pMem[i]) % modulus;
-            a[i] = t;
-
-        }
-        return a;
-    }
     TDynamicVector operator-(const TDynamicVector& v)
     {
         if(sz != v.sz)
@@ -202,13 +178,11 @@ public:
             S += pMem[i]*v[i];
         return S;
     }
-
     friend void swap(TDynamicVector& lhs, TDynamicVector& rhs) noexcept
     {
         std::swap(lhs.sz, rhs.sz);
         std::swap(lhs.pMem, rhs.pMem);
     }
-
     // ввод/вывод
     friend istream& operator>>(istream& istr, TDynamicVector& v)
     {
@@ -222,11 +196,7 @@ public:
             ostr << v.pMem[i] << ", "; // требуется оператор<< для типа T
         return ostr;
     }
-
 };
-
-
-
 template<typename T>
 class Matrix {
 private:
@@ -236,45 +206,14 @@ public:
     unsigned int GetSize() const;
     long nullity() const; // Для приведённой матрицы!!!
     long rank() const; // Для приведённой матрицы!!!
-    void SetSize(unsigned int s);
     // Операции выбраны исходя из необходимости
     explicit Matrix(unsigned int n); // n * n zero matrix
     explicit Matrix(const TDynamicVector<TDynamicVector<T>>& v); // Преобразователь типа
     TDynamicVector<T>& operator[](unsigned int i); // i-я строка
-    Matrix operator*(Matrix& m); // the most important function, it needs to be fast. Using adaptive Strassen's method
     TDynamicVector<T> operator*(const TDynamicVector<T>& vec);
     Matrix transpose();
     friend ostream& operator<<(ostream& ostr, Matrix<T>& m);
-    void print(); // ВТорой вывод
-    static vector<vector<double> >
-    add_matrix(vector<vector<double> > matrix_A,
-               vector<vector<double> > matrix_B, int split_index,
-               int multiplier );
-    static vector<vector<double> >
-    multiply_matrix(vector<vector<double> > matrix_A,
-                    vector<vector<double> > matrix_B);
-    void randomize(unsigned int range); // random int values
-
 };
-//int modulo_inverse(int a, int rem); // Обратный по модулю
-//int chinese_remainder_theorem(const int* numbers, const int* remainders, int n); // Мин. положит. решение китайской теоремы об остатках
-
-//pair<Matrix<int>,Matrix<int>> decompose(Matrix<int>& A); //  [ THE BEST SO FAR ]
 void compute_SNF(Matrix<long>& A);
 Matrix<long> to_SNF(Matrix<long>& A);
-//pair<Matrix<int>,Matrix<int>> solve_SLDE_mod_p(Matrix<int>& A, TDynamicVector<int>& b,int p); // Ax = b mod p
-// В перспективе будут возвращаться две матрицы: U и R. U A R = S, S - смитова нормальная форма
-//vector<int> SieveOfEratosthenes(int n); // Возвращает вектор простых чисел, меньших n
-//pair<Matrix<int>,Matrix<int>> solve_SLDE_modular_method(Matrix<int>& A, TDynamicVector<int>& b); // Решаем достаточно систем по модулю, затем собираем всё вместе
-//--------------------------------------------------------------
-// GGH crypto-algorithm
-//--------------------------------------------------------------
-//Matrix<int> gen_public_key(int size,int range);
-//vector<Matrix<int>> gen_private_key(Matrix<int>& public_key);
-
-// e = x A + r
-//TDynamicVector<int> encrypt(const TDynamicVector<int>& message, Matrix<int>& public_key,short sigma);
-//
-//TDynamicVector<int> decrypt(const TDynamicVector<int>& message, Matrix<int> U,Matrix<int> private_key,Matrix<int> A,short sigma);
-
 #endif //FASTHNF_MATRIX_H
