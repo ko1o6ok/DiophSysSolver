@@ -4,14 +4,11 @@
 #include <sstream>
 #include "Simplex.h"
 #include "Graph.h"
-Vertex::Vertex(unsigned long ind) {
-    index = ind;
-}
 vector<unsigned long> Simplex::make_word() {
     vector<unsigned long> word;
     word.reserve(vertices.size());
     for (auto& vert:vertices) {
-        word.push_back(vert.index);
+        word.push_back(vert);
     }
     return word;
 }
@@ -25,7 +22,7 @@ ostream &operator<<(ostream &stream, const Simplex& s) {
     cout << "This simplex is "<< endl;
     cout << "- ";
     for (auto v:s.vertices)
-        stream << v.index << " - ";
+        stream << v << " - ";
     return stream;
 }
 Simplex::~Simplex() {

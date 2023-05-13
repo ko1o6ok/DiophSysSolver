@@ -13,7 +13,6 @@ public:
     Graph();// Конструктор по умолчанию
     Graph(Graph const &another_g); // Конструктор копирования
     void connect_vertices(unsigned long vert1,unsigned long vert2); // Соединить две вершины ребром
-    //void disconnect_vertices(unsigned long vert1,unsigned long vert2); // Рассоединить две вершины
     explicit Graph(const vector<vector<double>>& pnt_cld); // Создание ПУСТОГО графа из облака точек
     Graph connect_eps_neighbours(double eps); // Соединить только вершины с ЕВКЛИДОВЫМ расстоянием < eps
     vector<unsigned long> lower_neighbours(unsigned long vertex,Graph difference); // Все вершины, предшествующие данной

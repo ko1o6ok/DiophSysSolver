@@ -2,7 +2,6 @@
 #define FASTHNF_MATRIX_H
 #include <vector>
 #include <iostream>
-#include <random>
 using namespace std;
 // Динамический вектор -
 // шаблонный вектор на динамической памяти
@@ -99,16 +98,6 @@ public:
     {
         return pMem[ind];
     }
-    // индексация с контролем
-    T& at(size_t ind)
-    {
-        return &pMem[ind];
-    }
-    const T& at(size_t ind) const
-    {
-        return &pMem[ind];
-    }
-
     // сравнение
     bool operator==(const TDynamicVector& v) const noexcept
     {
@@ -130,18 +119,6 @@ public:
     }
 
     // скалярные операции
-    TDynamicVector operator+(T val)
-    {
-        for (int i = 0; i < sz; ++i)
-            pMem[i] += val;
-        return *this;
-    }
-    TDynamicVector operator-(T val)
-    {
-        for (int i = 0; i < sz; ++i)
-            pMem[i] -= val;
-        return *this;
-    }
     TDynamicVector operator*(T val)
     {
         TDynamicVector<T> temp(sz);
@@ -149,7 +126,6 @@ public:
              temp[i]= pMem[i] * val;
         return temp;
     }
-
     // векторные операции
     TDynamicVector operator+(const TDynamicVector& v)
     {
@@ -183,19 +159,6 @@ public:
         std::swap(lhs.sz, rhs.sz);
         std::swap(lhs.pMem, rhs.pMem);
     }
-    // ввод/вывод
-    friend istream& operator>>(istream& istr, TDynamicVector& v)
-    {
-        for (size_t i = 0; i < v.sz; i++)
-            istr >> v.pMem[i]; // требуется оператор>> для типа T
-        return istr;
-    }
-    friend ostream& operator<<(ostream& ostr, const TDynamicVector& v)
-    {
-        for (size_t i = 0; i < v.sz; i++)
-            ostr << v.pMem[i] << ", "; // требуется оператор<< для типа T
-        return ostr;
-    }
 };
 template<typename T>
 class Matrix {
@@ -212,7 +175,6 @@ public:
     TDynamicVector<T>& operator[](unsigned int i); // i-я строка
     TDynamicVector<T> operator*(const TDynamicVector<T>& vec);
     Matrix transpose();
-    friend ostream& operator<<(ostream& ostr, Matrix<T>& m);
 };
 void compute_SNF(Matrix<long>& A);
 Matrix<long> to_SNF(Matrix<long>& A);
