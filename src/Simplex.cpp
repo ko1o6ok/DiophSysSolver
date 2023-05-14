@@ -256,7 +256,7 @@ Graph SimplexTree::eps_upgrade(double eps) {
     }
     // !!!!!!!
     num_vertices = g.num_vertices;
-    // !!!!!
+    // !!!!!!
     return g;
 }
 void simplexes_of_dim(MyNode* current_node,int k,vector<Simplex>& simplexes,const Simplex& current_simplex){
