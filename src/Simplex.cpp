@@ -203,15 +203,15 @@ vector<int> SimplexTree::betti_numbers() const {
     }
     return res;
 }
-Graph SimplexTree::eps_upgrade(double eps) {
+void SimplexTree::eps_upgrade(double eps) {
     // Здесь важно учесть предыдущее состояние, чтобы не считать одно и то же дважды
     auto g_empty = g.is_empty();
     Graph difference = g.connect_eps_neighbours(eps);
     if((difference.is_empty())&&(!g_empty))
-        return g;
+        return ;
     // На его основе создаём комплекс Вьеториса-Рипса:
     if(max_dimension == 0)
-        return g;
+        return ;
     // Индуктивно добавляем симплексы размерности <= max_dimension
     for (int k = 1; k < max_dimension+1; ++k) {
         auto simplexes = all_simplexes_of_dim(k-1); // Все симплексы размерности k-1
@@ -257,7 +257,6 @@ Graph SimplexTree::eps_upgrade(double eps) {
     // !!!!!!!
     num_vertices = g.num_vertices;
     // !!!!!!
-    return g;
 }
 void simplexes_of_dim(MyNode* current_node,int k,vector<Simplex>& simplexes,const Simplex& current_simplex){
     if(k<0)

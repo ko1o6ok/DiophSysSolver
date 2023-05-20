@@ -106,8 +106,7 @@ void compute_SNF(Matrix<long>& A) {
         while (true) {
             num_nonzero = 1;
             // Нули нам явно не нужны. They are the good guys.
-            int j = k;
-            // Здесь ошибка: не учтено, что все могут быть нулевыми!!
+            int j = k; // Номер столбца
             while (col[j] == 0){
                 j++;
                 if(j==n){
@@ -173,7 +172,7 @@ void compute_SNF(Matrix<long>& A) {
         }
         if(is_all_zero)
             continue;
-        // Апосля того, как был зачищен стобец, меняем местами k-ю и min_pos строки
+        // После того как был зачищен столбец, меняем местами k-ю и min_pos строки
         if (k != n - 1)
             swap(A[k], A[pos_min_nonzero]);
         // А теперь, пользуясь оставшимся ненулевым элементом, уменьшаем элементы строки

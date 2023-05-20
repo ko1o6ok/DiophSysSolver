@@ -42,7 +42,7 @@ public:
     explicit SimplexTree(vector<vector<double>>& pnt_cld); // Просто множество симплексов размерности 0 на основе множества точек
     // Базовый деструктор
     ~SimplexTree();
-    Graph eps_upgrade(double eps);
+    void eps_upgrade(double eps);
 };
 vector<vector<double>> read_to_pnt_cld(const string& filename);// Чтение облака точек из файла
 void simplexes_of_dim(MyNode* current_node,int k,vector<Simplex>& simplexes,const Simplex& current_simplex);
